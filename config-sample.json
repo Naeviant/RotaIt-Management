@@ -1,0 +1,6 @@
+{
+    "app": {
+        "port": 8081,
+        "secret": "BYSWc1LI1271I49Pq8dM"
+    }
+}
