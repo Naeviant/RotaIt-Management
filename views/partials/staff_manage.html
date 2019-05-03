@@ -1,0 +1,239 @@
+<div class="row">
+    <div class="col s12 m10 offset-m1 l8 offset-l2">
+        <div class="card">
+            <div class="card-content">
+                <div class="row" style="margin: 0;">
+                    <div class="col s12">
+                        <h4 class="center">Manage User</h4>
+                        <br />
+                        <div class="row" style="margin: 0;">
+                            <form class="col s12">
+                                <div class="row" style="margin: 0;">
+                                    <div class="input-field col s12 m6 l3">
+                                        <input id="firstname" type="text">
+                                        <label for="firstname">First Name</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l3">
+                                        <input id="lastname" type="text">
+                                        <label for="lastname">Last Name</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l3">
+                                        <input id="dob" type="date" disabled>
+                                        <label for="dob">Date of Birth</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l3">
+                                        <input id="staffnumber" type="text" disabled>
+                                        <label for="staffnumber">Staff Number</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l6">
+                                        <input id="job" type="text">
+                                        <label for="job">Job Role</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l6">
+                                        <input id="email" type="text">
+                                        <label for="email">Email Address</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l3">
+                                        <input id="hours" type="text">
+                                        <label for="hours">Hours</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l3">
+                                        <input id="overtime" type="text">
+                                        <label for="overtime">Maximum Overtime</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l3">
+                                        <input id="pay" type="text">
+                                        <label for="pay">Standard Hourly Pay</label>
+                                    </div>
+                                    <div class="input-field col s12 m6 l3">
+                                        <input id="reportsto" type="text" disabled>
+                                        <label for="reportsto">Reports To</label>
+                                    </div>
+                                    <div class="col s12 hide-on-med-and-up center">
+                                        <h6><strong>Availability</strong></h6>
+                                    </div>
+                                    <div class="col s12" id="availability">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="hide-on-small-only">Availability</th>
+                                                    <th class="hide-on-med-and-up"></th>
+                                                    <td>Mornings</td>
+                                                    <td>Afternoons</td>
+                                                    <td>Evenings</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="hide-on-small-only">Sunday</td>
+                                                    <td class="hide-on-med-and-up">Su</td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="sunday-mornings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="sunday-afternoons" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="hide-on-small-only">Monday</td>
+                                                    <td class="hide-on-med-and-up">M</td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="monday-mornings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="monday-afternoons" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="monday-evenings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="hide-on-small-only">Tuesday</td>
+                                                    <td class="hide-on-med-and-up">Tu</td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="tuesday-mornings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="tuesday-afternoons" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="tuesday-evenings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="hide-on-small-only">Wednesday</td>
+                                                    <td class="hide-on-med-and-up">W</td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="wednesday-mornings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="wednesday-afternoons" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="wednesday-evenings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="hide-on-small-only">Thursday</td>
+                                                    <td class="hide-on-med-and-up">Th</td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="thursday-mornings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="thursday-afternoons" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="thursday-evenings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="hide-on-small-only">Friday</td>
+                                                    <td class="hide-on-med-and-up">F</td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="friday-mornings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="friday-afternoons" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="friday-evenings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="hide-on-small-only">Saturday</td>
+                                                    <td class="hide-on-med-and-up">Sa</td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="satday-mornings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="satday-afternoons" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" class="filled-in" id="satday-evenings" />
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="col s12 m6 l3">
+                                <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Back</a>
+                            </div>
+                            <div class="col s12 m6 l3">
+                                <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Password Reset</a>
+                            </div>
+                            <div class="col s12 m6 l3">
+                                <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Delete User</a>
+                            </div>
+                            <div class="col s12 m6 l3">
+                                <a class="waves-effect waves-light btn light-blue" style="width: 100%;">Submit Changes</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

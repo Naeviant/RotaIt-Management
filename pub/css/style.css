@@ -11,3 +11,19 @@ html, body {
 body {
     background-color: #f5faff;
 }
+
+/* Center Availability Tables */
+#availability td, #availability th {
+    text-align: center;
+}
+
+#availability input+span {
+    position: relative;
+    left: 10px;
+}
+
+/* Remove Dropdown for Date of Birth Inputs */
+::-webkit-inner-spin-button, ::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
