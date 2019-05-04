@@ -6,7 +6,7 @@
     "url": "https://hirst.xyz"
   },
   "bugs": "https://github.com/Naeviant/RotaIt-Management/issues",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/Naeviant/RotaIt-Management.git"
@@ -21,6 +21,7 @@
     "express": "^4.16.4",
     "express-nunjucks": "^2.2.3",
     "express-session": "^1.16.1",
+    "fs": "0.0.1-security",
     "nunjucks": "^3.2.0"
   },
   "devDependencies": {

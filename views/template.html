@@ -5,7 +5,7 @@
         <link rel="icon" href="/img/icon.png" type="image/png" />
         <meta name="viewport" content="width=device-width">
         <!-- JQuery Imports -->
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <!-- Materialize CSS Imports -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -29,13 +29,12 @@
             </li>
             <li><h6 class="center" style="margin-bottom: 18px;">Management Pre-Release V{{ version }}</h6></li>
             <li><div class="divider"></div></li>
-            <li><a><i class="material-icons">supervisor_account</i>My Team</a></li>
-            <li><a><i class="material-icons">search</i>Rota Search</a></li>
-            <li><a><i class="material-icons">edit</i>New/Edit Rota</a></li>
-            <li><a><i class="material-icons">beach_access</i>Pending Requests</a></li>
-            <li><a><i class="material-icons">event_note</i>Additional Events</a></li>
+            <li><a href="#!" data-page="staff"><i class="material-icons">supervisor_account</i>My Team</a></li>
+            <li><a href="#!" data-page="rota_search"><i class="material-icons">search</i>Rotas</a></li>
+            <li><a href="#!" data-page="requests"><i class="material-icons">beach_access</i>Pending Requests</a></li>
+            <li><a href="#!" data-page="events"><i class="material-icons">event_note</i>Additional Events</a></li>
             <li><div class="divider"></div></li>
-            <li><a><i class="material-icons">keyboard_tab</i>Log Out</a></li>
+            <li><a href="#!" id="logout"><i class="material-icons">keyboard_tab</i>Log Out</a></li>
         </ul>
         <div id="content">
 

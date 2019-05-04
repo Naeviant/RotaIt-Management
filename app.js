@@ -4,6 +4,7 @@ var express = require("express"),
     nunjucks = require("express-nunjucks"),
     bodyParser = require("body-parser"),
     cookieParser = require("cookie-parser"),
+    fs = require("fs"),
     config = require("./config.json"),
     package = require("./package.json");
 
@@ -31,8 +32,27 @@ app.locals = {
     version: package.version
 }
 
+// Get Main Page
 app.get("/", function(req, res) {
     res.render("template");
+});
+
+// Get Partials
+app.get("/partial/", function(req, res) {
+    if (req.query.page) {
+        if (fs.existsSync("./views/partials/" + req.query.page + ".html")) {
+            res.render("partials/" + req.query.page)
+        }
+        else {
+            res.render("partials/error", {
+                code: 404,
+                message: "The page you requested was not found."
+            })
+        }
+    }
+    else {
+        res.send("");
+    }
 });
 
 // Run Server
