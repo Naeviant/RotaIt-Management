@@ -16,28 +16,36 @@
     <body>
         <nav class="light-blue white-text">
             <div class="nav-wrapper">
-                <a href="#" data-target="slide-out" class="sidenav-trigger" style="display: block;"><i class="material-icons">menu</i></a>
-                <ul class="right">
-                    <li><a href="#" class="right">Sam Hirst</a></li>
-                </ul>                
+                {% if loggedin %}
+                    <a href="#" data-target="slide-out" class="sidenav-trigger" style="display: block;"><i class="material-icons">menu</i></a>
+                    <ul class="right">
+                        <li><a href="#" class="right">{{ name }}</a></li>
+                    </ul>         
+                {% endif %}       
             </div>
         </nav>
-        <ul id="slide-out" class="sidenav">
-            <li class="center">
-                <img class="responsive-img" src="/img/icon.png" style="max-width: 30%; margin-top: 20px; margin-bottom: -10px;">
-                <h4>RotaIt</h4>
-            </li>
-            <li><h6 class="center" style="margin-bottom: 18px;">Management Pre-Release V{{ version }}</h6></li>
-            <li><div class="divider"></div></li>
-            <li><a href="#!" data-page="staff"><i class="material-icons">supervisor_account</i>My Team</a></li>
-            <li><a href="#!" data-page="rota_search"><i class="material-icons">search</i>Rotas</a></li>
-            <li><a href="#!" data-page="requests"><i class="material-icons">beach_access</i>Pending Requests</a></li>
-            <li><a href="#!" data-page="events"><i class="material-icons">event_note</i>Additional Events</a></li>
-            <li><div class="divider"></div></li>
-            <li><a href="#!" id="logout"><i class="material-icons">keyboard_tab</i>Log Out</a></li>
-        </ul>
+        {% if loggedin %}
+            <ul id="slide-out" class="sidenav">
+                <li class="center">
+                    <img class="responsive-img" src="/img/icon.png" style="max-width: 30%; margin-top: 20px; margin-bottom: -10px;">
+                    <h4>RotaIt</h4>
+                </li>
+                <li><h6 class="center" style="margin-bottom: 18px;">Management Pre-Release V{{ version }}</h6></li>
+                <li><div class="divider"></div></li>
+                <li><a href="#!" data-page="staff"><i class="material-icons">supervisor_account</i>My Team</a></li>
+                <li><a href="#!" data-page="rota_search"><i class="material-icons">search</i>Rotas</a></li>
+                <li><a href="#!" data-page="requests"><i class="material-icons">beach_access</i>Pending Requests</a></li>
+                <li><a href="#!" data-page="events"><i class="material-icons">event_note</i>Additional Events</a></li>
+                <li><div class="divider"></div></li>
+                <li><a href="#!" id="logout"><i class="material-icons">keyboard_tab</i>Log Out</a></li>
+            </ul>
+        {% endif %}
         <div id="content">
-
+            {% ifAsync loggedin %}
+                {% include "./partials/staff.html" %}
+            {% else %}
+                {% include "./partials/login.html" %}
+            {% endif %}
         </div>
     </body>
 </html>

@@ -2,6 +2,7 @@
 var express = require("express"),
     session = require("express-session"),
     nunjucks = require("express-nunjucks"),
+    mongodb = require("express-mongo-db"),
     bodyParser = require("body-parser"),
     cookieParser = require("cookie-parser"),
     fs = require("fs"),
@@ -26,11 +27,18 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+app.use(mongodb("mongodb://localhost/rotait"));
 
 // App Local Variables
 app.locals = {
     version: package.version
 }
+
+// Session Local Variables
+app.get("*", function(req, res, next) {
+    res.locals = req.session;
+    next();
+});
 
 // Get Main Page
 app.get("/", function(req, res) {
@@ -47,12 +55,57 @@ app.get("/partial/", function(req, res) {
             res.render("partials/error", {
                 code: 404,
                 message: "The page you requested was not found."
-            })
+            });
         }
     }
     else {
         res.send("");
     }
+});
+
+// Accept Login Details
+app.post("/login/", function(req, res) {
+    req.db.collection("users").findOne({
+        staffNumber: req.body.staffNumber,
+        password: req.body.password
+    }, function(err, resp) {
+        if (!err) {
+            if (resp) {
+                if (resp.manager === true) {
+                    req.session.loggedin = resp.staffNumber;
+                    req.session.name = resp.firstName + " " + resp.lastName;
+                    res.send({
+                        status: 200,
+                        message: "Login Successful"
+                    });
+                }
+                else {
+                    res.send({
+                        status: 401,
+                        message: "Insufficient Priviledges"
+                    });
+                }
+            }
+            else {
+                res.send({
+                    status: 404,
+                    message: "User Account Not Found"
+                });
+            }
+        }
+        else {
+            res.send({
+                status: 500,
+                message: "Database Connection Failure"
+            });
+        }
+    });
+});
+
+// Accept Logout Requests
+app.post("/logout/", function(req, res) {
+    req.session.destroy();
+    res.sendStatus(200);
 });
 
 // Run Server

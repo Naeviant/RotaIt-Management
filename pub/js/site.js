@@ -23,7 +23,15 @@ $(document).delegate(".sidenav a:not(#logout)", "click", function() {
         $("#content").fadeOut("fast", function() {
             $("#content").html(res);
             stopOverflow();
+            M.AutoInit();
             $("#content").fadeIn("fast");
         });
+    });
+});
+
+// Log Out
+$(document).delegate("#logout", "click", function() {
+    $.post("/logout/", function() {
+        window.location = "/";
     });
 });
