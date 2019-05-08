@@ -41,9 +41,7 @@
             </ul>
         {% endif %}
         <div id="content">
-            {% ifAsync loggedin %}
-                {% include "./partials/staff.html" %}
-            {% else %}
+            {% ifAsync not loggedin %}
                 {% include "./partials/login.html" %}
             {% endif %}
         </div>

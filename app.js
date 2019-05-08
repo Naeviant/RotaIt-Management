@@ -13,7 +13,12 @@ var express = require("express"),
 var app = express();
 var njk = nunjucks(app, {
     watch: true,
-    noCache: true
+    noCache: true,
+    filters: {
+        date: function(d) {
+            return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth()+1)).slice(-2) + "/" + d.getFullYear();
+        }
+    }
 });
 app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + "/pub"));
@@ -46,21 +51,35 @@ app.get("/", function(req, res) {
 });
 
 // Get Partials
-app.get("/partial/", function(req, res) {
-    if (req.query.page) {
-        if (fs.existsSync("./views/partials/" + req.query.page + ".html")) {
-            res.render("partials/" + req.query.page)
-        }
-        else {
-            res.render("partials/error", {
-                code: 404,
-                message: "The page you requested was not found."
+app.get("/partial/staff/", function(req, res) {
+    if (req.session.loggedin) {
+        req.db.collection("users").findOne({
+            staffNumber: req.session.loggedin
+        }, function(err, resp) {
+            req.db.collection("users").find({
+                team: resp.team
+            }, {
+                sort: [["firstName", "ascending"]]
+            }, function(err, resp) {
+                resp.toArray().then(function(team) {
+                    res.render("partials/staff", {
+                        team: team
+                    });
+                });
             });
-        }
+        });
     }
     else {
         res.send("");
     }
+});
+
+// Get Partial 404
+app.get("/partial/*", function(req, res) {
+    res.render("partials/error", {
+        code: 404,
+        message: "The page you requested was not found."
+    });
 });
 
 // Accept Login Details

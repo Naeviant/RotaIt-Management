@@ -16,9 +16,7 @@ $(document).ready(function() {
 
 // Navigation
 $(document).delegate(".sidenav a:not(#logout)", "click", function() {
-    $.get("/partial/", {
-        page: $(this).data("page")
-    }, function(res) {
+    $.get("/partial/" + $(this).data("page"), function(res) {
         $(".sidenav").sidenav("close");
         $("#content").fadeOut("fast", function() {
             $("#content").html(res);
@@ -34,4 +32,12 @@ $(document).delegate("#logout", "click", function() {
     $.post("/logout/", function() {
         window.location = "/";
     });
+});
+
+// Load Initial Partial
+$(document).ready(function() {
+    console.log($("#content").html().trim())
+    if (!$("#content").html().trim()) {
+        $(".sidenav a[data-page='staff']").click();
+    }
 });
