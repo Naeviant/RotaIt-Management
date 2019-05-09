@@ -20,9 +20,10 @@ $(document).delegate(".sidenav a:not(#logout)", "click", function() {
         $(".sidenav").sidenav("close");
         $("#content").fadeOut("fast", function() {
             $("#content").html(res);
-            stopOverflow();
             M.AutoInit();
-            $("#content").fadeIn("fast");
+            $("#content").fadeIn("fast", function() {
+                stopOverflow();
+            });
         });
     });
 });
@@ -36,7 +37,6 @@ $(document).delegate("#logout", "click", function() {
 
 // Load Initial Partial
 $(document).ready(function() {
-    console.log($("#content").html().trim())
     if (!$("#content").html().trim()) {
         $(".sidenav a[data-page='staff']").click();
     }

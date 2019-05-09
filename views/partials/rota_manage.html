@@ -1,0 +1,331 @@
+<link rel="stylesheet" href="/css/rota.css">
+
+<div class="row valign-wrapper" style="height: 100%; margin: 0;">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <div class="row" style="margin: 0;">
+                    <div class="col s12 center">
+                        <h4>
+                            Rota for Week {{ week.weekNumber }} ({{ week.year }})
+                            <a href="#!" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Save" style="margin-left: 5px;"><i class="material-icons">save</i></a>
+                            <a href="#!" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Verify" style="margin-left: 5px;"><i class="material-icons">done</i></a>
+                            <a href="#modal-settings" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Week Settings" style="margin-left: 5px;"><i class="material-icons">settings</i></a>
+                            <a href="#modal-colours" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Colour Key" style="margin-left: 5px;"><i class="material-icons">format_color_fill</i></a>
+                            <a href="#modal-team" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Team Info" style="margin-left: 5px;"><i class="material-icons">face</i></a>
+                        </h4>
+                    </div>
+                    <div class="col s12" style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <td rowspan="3">Name & <br> Staff Number</td>
+                                    <td colspan="3">Sunday</td>
+                                    <td colspan="3">Monday</td>
+                                    <td colspan="3">Tuesday</td>
+                                    <td colspan="3">Wednesday</td>
+                                    <td colspan="3">Thursday</td>
+                                    <td colspan="3">Friday</td>
+                                    <td colspan="3">Saturday</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">12/05/2019</td>
+                                    <td colspan="3">13/05/2019</td>
+                                    <td colspan="3">14/05/2019</td>
+                                    <td colspan="3">15/05/2019</td>
+                                    <td colspan="3">16/05/2019</td>
+                                    <td colspan="3">17/05/2019</td>
+                                    <td colspan="3">18/05/2019</td>
+                                </tr>
+                                <tr>
+                                    <td>In</td>
+                                    <td>Out</td>
+                                    <td>Break</td>
+                                    <td>In</td>
+                                    <td>Out</td>
+                                    <td>Break</td>
+                                    <td>In</td>
+                                    <td>Out</td>
+                                    <td>Break</td>
+                                    <td>In</td>
+                                    <td>Out</td>
+                                    <td>Break</td>
+                                    <td>In</td>
+                                    <td>Out</td>
+                                    <td>Break</td>
+                                    <td>In</td>
+                                    <td>Out</td>
+                                    <td>Break</td>
+                                    <td>In</td>
+                                    <td>Out</td>
+                                    <td>Break</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for staff in team %}
+                                    <tr>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);">{{ staff.firstName }} {{ staff.lastName }} <br> {{ staff.staffNumber }}</td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
+                                        <td><input type="time"></td>
+                                        <td><input type="number"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
+                                        <td><input type="time"></td>
+                                        <td><input type="number"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
+                                        <td><input type="time"></td>
+                                        <td><input type="number"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
+                                        <td><input type="time"></td>
+                                        <td><input type="number"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
+                                        <td><input type="time"></td>
+                                        <td><input type="number"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
+                                        <td><input type="time"></td>
+                                        <td><input type="number"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
+                                        <td><input type="time"></td>
+                                        <td style="border-right: 1px solid rgba(0,0,0,0.12);"><input type="number"></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-team" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4>
+            Team Info
+            <a href="#!" class="modal-close btn-flat right"><i class="material-icons">close</i></a>
+        </h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th class="hide-on-med-and-down">Date of Birth</th>
+                    <th class="hide-on-med-and-down">Job Role</th>
+                    <th>Hours</th>
+                    <th>Max Overtime</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for staff in team %}
+                    <tr>
+                        <td>{{ staff.firstName }} {{ staff.lastName }}</td>
+                        <td class="hide-on-med-and-down">{{ staff.dob | date }}</td>
+                        <td class="hide-on-med-and-down">{{ staff.jobRole }}</td>
+                        <td>{{ staff.hours}}</td>
+                        <td>{{ staff.maxOvertime}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modal-colours" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4>
+            Colour Key
+            <a href="#!" class="modal-close btn-flat right"><i class="material-icons">close</i></a>
+        </h4>
+        <table>
+            <tbody>
+                <tr>
+                    <td>No Colour</td>
+                    <td>No Shift</td>
+                </tr>
+                <tr>
+                    <td>Solid Yellow</td>
+                    <td>Early Shift</td>
+                </tr>
+                <tr>
+                    <td>Solid Orange</td>
+                    <td>Middle Shift</td>
+                </tr>
+                <tr>
+                    <td>Solid Pink</td>
+                    <td>Late Shift</td>
+                </tr>
+                <tr>
+                    <td>Solid Green</td>
+                    <td>Administrative Task</td>
+                </tr>
+                <tr>
+                    <td>Hashed Blue</td>
+                    <td>Annual Leave or Lieu Time</td>
+                </tr>
+                <tr>
+                    <td>Hashed Purple</td>
+                    <td>Long-Term Absence</td>
+                </tr>
+                <tr>
+                    <td>Hashed Red</td>
+                    <td>Suspension</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modal-settings" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4>    
+            Week Settings
+            <a href="#!" class="modal-close btn-flat right"><i class="material-icons">close</i></a>
+        </h4>
+        <table style="overflow-x: auto;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Store Closed</th>
+                    <th>Bank Holiday</th>
+                    <th>Open (Customers)</th>
+                    <th>Close (Customers)</th>
+                    <th>Open (Staff)</th>
+                    <th>Close (Staff)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Sunday</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.sun.closed %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.sun.bankHoliday %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                </tr>
+                <tr>
+                    <th>Monday</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.mon.closed %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.mon.bankHoliday %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                </tr>
+                <tr>
+                    <th>Tuesday</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.tue.closed %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.tue.bankHoliday %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                </tr>
+                <tr>
+                    <th>Wednesday</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.wed.closed %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.wed.bankHoliday %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                </tr>
+                <tr>
+                    <th>Thursday</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.thu.closed %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.thu.bankHoliday %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                </tr>
+                <tr>
+                    <th>Friday</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.fri.closed %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.fri.bankHoliday %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                </tr>
+                <tr>
+                    <th>Saturday</th>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.sat.closed %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="checkbox" class="filled-in" {% if week.sat.bankHoliday %} checked {% endif %} />
+                            <span></span>
+                        </label>
+                    </td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                    <td><input type="time"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

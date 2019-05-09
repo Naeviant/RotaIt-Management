@@ -50,7 +50,7 @@ app.get("/", function(req, res) {
     res.render("template");
 });
 
-// Get Partials
+// Get Partials - Team
 app.get("/partial/staff/", function(req, res) {
     if (req.session.loggedin) {
         req.db.collection("users").findOne({
@@ -71,6 +71,133 @@ app.get("/partial/staff/", function(req, res) {
     }
     else {
         res.send("");
+    }
+});
+
+// Get Partials - Rota Search
+app.get("/partial/rota/", function(req, res) {
+    if (req.session.loggedin) {
+        res.render("partials/rota_search");
+    }
+    else {
+        res.send("");
+    }
+});
+
+// Get Partials - Rota Manage
+app.get("/partial/rota_manage/", function(req, res) {
+    if (req.session.loggedin) {
+        if (req.query.week && req.query.year && !isNaN(parseInt(req.query.week)) && !isNaN(parseInt(req.query.year))) {
+            req.query.week = parseInt(req.query.week);
+            req.query.year = parseInt(req.query.year);
+            if (req.query.year >= 2000 && req.query.week >= 1 && req.query.week <= 53) {
+                req.db.collection("users").findOne({
+                    staffNumber: req.session.loggedin
+                }, function(err, resp) {
+                    req.db.collection("users").find({
+                        team: resp.team
+                    }, {
+                        sort: [["firstName", "ascending"]]
+                    }, function(err, resp) {
+                        resp.toArray().then(function(team) {
+                            req.db.collection("weeks").findOne({
+                                weekNumber: req.query.week,
+                                year: req.query.year
+                            }, function(err, week) {
+                                if (!week) {
+                                    var newWeek = true;
+                                    week = {
+                                        weekNumber: req.query.week,
+                                        year: req.query.year,
+                                        sun: {
+                                            closed: false,
+                                            bankHoliday: false,
+                                            openCustomers: new Date(36000000),
+                                            closedCustomers: new Date(57600000),
+                                            openStaff: new Date(25200000),
+                                            closedStaff: new Date(68400000)
+                                        },
+                                        mon: {
+                                            closed: false,
+                                            bankHoliday: false,
+                                            openCustomers: new Date(25200000),
+                                            closedCustomers: new Date(75600000),
+                                            openStaff: new Date(21600000),
+                                            closedStaff: new Date(82800000)
+                                        },
+                                        tue: {
+                                            closed: false,
+                                            bankHoliday: false,
+                                            openCustomers: new Date(25200000),
+                                            closedCustomers: new Date(75600000),
+                                            openStaff: new Date(21600000),
+                                            closedStaff: new Date(82800000)
+                                        },
+                                        wed: {
+                                            closed: false,
+                                            bankHoliday: false,
+                                            openCustomers: new Date(25200000),
+                                            closedCustomers: new Date(75600000),
+                                            openStaff: new Date(21600000),
+                                            closedStaff: new Date(82800000)
+                                        },
+                                        thu: {
+                                            closed: false,
+                                            bankHoliday: false,
+                                            openCustomers: new Date(25200000),
+                                            closedCustomers: new Date(75600000),
+                                            openStaff: new Date(21600000),
+                                            closedStaff: new Date(82800000)
+                                        },
+                                        fri: {
+                                            closed: false,
+                                            bankHoliday: false,
+                                            openCustomers: new Date(25200000),
+                                            closedCustomers: new Date(75600000),
+                                            openStaff: new Date(21600000),
+                                            closedStaff: new Date(82800000)
+                                        },
+                                        sat: {
+                                            closed: false,
+                                            bankHoliday: false,
+                                            openCustomers: new Date(25200000),
+                                            closedCustomers: new Date(72000000),
+                                            openStaff: new Date(21600000),
+                                            closedStaff: new Date(72900000)
+                                        }
+                                    }
+                                } 
+                                res.render("partials/rota_manage", {
+                                    team: team,
+                                    week: week
+                                });
+                                if (newWeek) {
+                                    req.db.collection("weeks").insertOne(week);
+                                }
+                            });
+                        });
+                    });
+                });
+            }
+            else {
+                res.render("partials/error", {
+                    code: 400,
+                    message: "The week number or year was invalid."
+                });
+            }
+        }
+        else {
+            res.render("partials/error", {
+                code: 400,
+                message: "The week number or year was invalid."
+            });
+        }
+    }
+    else {
+        res.render("partials/error", {
+            code: 403,
+            message: "Authentication with the server failed. Please try again later."
+        });
     }
 });
 
