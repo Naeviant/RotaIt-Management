@@ -50,7 +50,7 @@ app.get("/", function(req, res) {
     res.render("template");
 });
 
-// Get Partials - Team
+// Get Partial - Team
 app.get("/partial/staff/", function(req, res) {
     if (req.session.loggedin) {
         req.db.collection("users").findOne({
@@ -70,21 +70,58 @@ app.get("/partial/staff/", function(req, res) {
         });
     }
     else {
-        res.send("");
+        res.render("partials/error", {
+            code: 403,
+            message: "You are not authorised to view this page."
+        });
     }
 });
 
-// Get Partials - Rota Search
+// Get Partial - New Staff
+app.get("/partial/staff_manage/", function(req, res) {
+    if (req.session.loggedin) {
+        if (req.query && req.query.staffNumber) {
+            req.db.collection("users").findOne({
+                staffNumber: req.query.staffNumber
+            }, function(err, resp) {
+                if (resp) {
+                    resp.dob = resp.dob.getFullYear() + "-" + (resp.dob.getMonth() + 1) + "-" + resp.dob.getDate();
+                    res.render("partials/staff_manage", { edit: true, user: resp });
+                }
+                else {
+                    res.render("partials/error", {
+                        code: 400,
+                        message: "An unknown error occurred. Please try again later."
+                    });
+                }
+            });
+        }
+        else {
+            res.render("partials/staff_manage");
+        }
+    }
+    else {
+        res.render("partials/error", {
+            code: 403,
+            message: "You are not authorised to view this page."
+        });
+    }
+});
+
+// Get Partial - Rota Search
 app.get("/partial/rota/", function(req, res) {
     if (req.session.loggedin) {
         res.render("partials/rota_search");
     }
     else {
-        res.send("");
+        res.render("partials/error", {
+            code: 403,
+            message: "You are not authorised to view this page."
+        });
     }
 });
 
-// Get Partials - Rota Manage
+// Get Partial - Rota Manage
 app.get("/partial/rota_manage/", function(req, res) {
     if (req.session.loggedin) {
         if (req.query.week && req.query.year && !isNaN(parseInt(req.query.week)) && !isNaN(parseInt(req.query.year))) {
@@ -201,7 +238,7 @@ app.get("/partial/rota_manage/", function(req, res) {
     }
 });
 
-// Get Partial 404
+// Get Partial - 404
 app.get("/partial/*", function(req, res) {
     res.render("partials/error", {
         code: 404,
@@ -228,7 +265,7 @@ app.post("/login/", function(req, res) {
                 else {
                     res.send({
                         status: 401,
-                        message: "Insufficient Priviledges"
+                        message: "Insufficient Privileges"
                     });
                 }
             }
@@ -248,10 +285,163 @@ app.post("/login/", function(req, res) {
     });
 });
 
+// Accept New Users
+app.post("/staff/", function(req, res) {
+    if (req.session.loggedin) {
+        req.db.collection("users").findOne({
+            staffNumber: req.session.loggedin
+        }, function(err, resp) {
+            if (resp.manager === true) {
+                req.body.newUser = (req.body.newUser == "true");
+                req.body.dob = new Date(req.body.dob);
+                req.body.hours = parseFloat(req.body.hours);
+                req.body.maxOvertime = parseFloat(req.body.maxOvertime);
+                req.body.pay = parseFloat(req.body.pay);
+                req.body.manager = false;
+                req.body.reportsTo = req.session.loggedin;
+                req.body.team = resp.team;
+                for (var day of Object.keys(req.body.availability)) {
+                    for (var time of Object.keys(req.body.availability[day])) {
+                        req.body.availability[day][time] = (req.body.availability[day][time] == "true");
+                    }
+                }
+                if (req.body.firstName && req.body.lastName && !isNaN(req.body.dob.getTime()) && req.body.staffNumber && req.body.jobRole && req.body.email && !isNaN(req.body.hours) && !isNaN(req.body.maxOvertime) && !isNaN(req.body.hours && (!req.body.newUser || req.body.password))) {
+                    req.db.collection("users").findOne({
+                        staffNumber: req.body.staffNumber
+                    }, function(err, exists) {
+                        console.log(exists, req.body)
+                        if (exists && !req.body.newUser) {
+                            delete req.body.newUser;
+                            req.db.collection("users").updateOne({
+                                staffNumber: req.body.staffNumber
+                            }, req.body, function(err, done) {
+                                res.send({
+                                    status: 200,
+                                    message: "User Updated Successfully"
+                                });
+                            });
+                        }
+                        else if (exists && req.body.newUser) {
+                            res.send({
+                                status: 400,
+                                message: "Staff Number in Use"
+                            });
+                        }
+                        else {
+                            delete req.body.newUser;
+                            req.db.collection("users").insertOne(req.body, function(err, done) {
+                                res.send({
+                                    status: 200,
+                                    message: "User Added Successfully"
+                                });
+                            });
+                        }
+                    });
+                }
+                else {
+                    res.send({
+                        status: 400,
+                        message: "Missing Fields"
+                    });
+                }
+            }
+            else {
+                res.send({
+                    status: 401,
+                    message: "Insufficient Privileges"
+                });
+            }
+        });
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
 // Accept Logout Requests
 app.post("/logout/", function(req, res) {
     req.session.destroy();
     res.sendStatus(200);
+});
+
+// Accept Password Reset Requests
+app.post("/password/", function(req, res) {
+    console.log(req.body)
+    if (req.session.loggedin) {
+        if (req.body.password) {
+            req.db.collection("users").findOne({
+                staffNumber: req.session.loggedin
+            }, function(err, resp) {
+                if (resp.manager === true) {
+                    req.db.collection("users").updateOne({
+                        staffNumber: req.body.staffNumber
+                    }, {
+                        $set: {
+                            password: req.body.password
+                        }
+                    }, function(err, done) {
+                        res.send({
+                            status: 200,
+                            message: "Password Updated Successfully"
+                        });
+                    })
+                }
+                else {
+                    res.send({
+                        status: 401,
+                        message: "Insufficient Privileges"
+                    });
+                }
+            });
+        }
+        else {
+            res.send({
+                status: 400,
+                message: "No New Password Given"
+            });
+        }
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
+// Accept User Deletion Requests
+app.delete("/staff/", function(req, res) {
+    if (req.session.loggedin) {
+        req.db.collection("users").findOne({
+            staffNumber: req.session.loggedin
+        }, function(err, resp) {
+            if (resp.manager === true) {
+                req.db.collection("users").deleteOne({
+                    staffNumber: req.body.staffNumber
+                }, function(err, done) {
+                    res.send({
+                        status: 200,
+                        message: "User Deleted Successfully"
+                    });
+                })
+            }
+            else {
+                res.send({
+                    status: 401,
+                    message: "Insufficient Privileges"
+                });
+            }
+        });
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
 });
 
 // Run Server

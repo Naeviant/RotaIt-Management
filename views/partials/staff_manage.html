@@ -4,52 +4,62 @@
             <div class="card-content">
                 <div class="row" style="margin: 0;">
                     <div class="col s12">
-                        <h4 class="center">Add New User</h4>
-                        <h4 class="center" style="display: none;">Manage User</h4>
+                        {% if edit %}
+                            <h4 class="center">Manage User</h4>
+                        {% else %}
+                            <h4 class="center">Add New User</h4>
+                        {% endif %}
                         <br />
                         <div class="row" style="margin: 0;">
                             <form class="col s12">
                                 <div class="row" style="margin: 0;">
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="firstname" type="text">
+                                        <input id="firstname" type="text" value="{{ user.firstName }}">
                                         <label for="firstname">First Name</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="lastname" type="text">
+                                        <input id="lastname" type="text" value="{{ user.lastName }}">
                                         <label for="lastname">Last Name</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="dob" type="date">
+                                        <input id="dob" type="date" value="{{ user.dob }}">
                                         <label for="dob">Date of Birth</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="staffnumber" type="text">
+                                        <input id="staffnumber" type="text" value="{{ user.staffNumber }}" {% if edit %} disabled {% endif %} >
                                         <label for="staffnumber">Staff Number</label>
                                     </div>
                                     <div class="input-field col s12 m6 l6">
-                                        <input id="job" type="text">
+                                        <input id="job" type="text" value="{{ user.jobRole }}">
                                         <label for="job">Job Role</label>
                                     </div>
                                     <div class="input-field col s12 m6 l6">
-                                        <input id="email" type="text">
+                                        <input id="email" type="text" value="{{ user.email }}">
                                         <label for="email">Email Address</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="hours" type="text">
+                                        <input id="hours" type="number" value="{{ user.hours }}">
                                         <label for="hours">Hours</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="overtime" type="text">
+                                        <input id="overtime" type="number" value="{{ user.maxOvertime }}">
                                         <label for="overtime">Maximum Overtime</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="pay" type="text">
+                                        <input id="pay" type="number" value="{{ user.pay }}">
                                         <label for="pay">Standard Hourly Pay</label>
                                     </div>
-                                    <div class="input-field col s12 m6 l3">
-                                        <input id="reportsto" type="text" disabled>
-                                        <label for="reportsto">Reports To</label>
-                                    </div>
+                                    {% if edit %}
+                                        <div class="input-field col s12 m6 l3">
+                                            <input id="reportsto" type="text" value="{{ user.reportsTo }}" disabled>
+                                            <label for="reportsto">Reports To</label>
+                                        </div>
+                                    {% else %}
+                                        <div class="input-field col s12 m6 l3">
+                                            <input id="password" type="password">
+                                            <label for="password">Password</label>
+                                        </div>
+                                    {% endif %}
                                     <div class="col s12 hide-on-med-and-up center">
                                         <h6><strong>Availability</strong></h6>
                                     </div>
@@ -70,13 +80,13 @@
                                                     <td class="hide-on-med-and-up">Su</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="sunday-mornings" />
+                                                            <input type="checkbox" class="filled-in" id="sunday-mornings" {% if user.availability.sun.morning %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="sunday-afternoons" />
+                                                            <input type="checkbox" class="filled-in" id="sunday-afternoons" {% if user.availability.sun.afternoon %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -87,19 +97,19 @@
                                                     <td class="hide-on-med-and-up">M</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="monday-mornings" />
+                                                            <input type="checkbox" class="filled-in" id="monday-mornings" {% if user.availability.mon.morning %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="monday-afternoons" />
+                                                            <input type="checkbox" class="filled-in" id="monday-afternoons" {% if user.availability.mon.afternoon %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="monday-evenings" />
+                                                            <input type="checkbox" class="filled-in" id="monday-evenings" {% if user.availability.mon.evening %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -109,19 +119,19 @@
                                                     <td class="hide-on-med-and-up">Tu</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="tuesday-mornings" />
+                                                            <input type="checkbox" class="filled-in" id="tuesday-mornings" {% if user.availability.tue.morning %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="tuesday-afternoons" />
+                                                            <input type="checkbox" class="filled-in" id="tuesday-afternoons" {% if user.availability.tue.afternoon %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="tuesday-evenings" />
+                                                            <input type="checkbox" class="filled-in" id="tuesday-evenings" {% if user.availability.tue.evening %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -131,19 +141,19 @@
                                                     <td class="hide-on-med-and-up">W</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="wednesday-mornings" />
+                                                            <input type="checkbox" class="filled-in" id="wednesday-mornings" {% if user.availability.wed.morning %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="wednesday-afternoons" />
+                                                            <input type="checkbox" class="filled-in" id="wednesday-afternoons" {% if user.availability.wed.afternoon %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="wednesday-evenings" />
+                                                            <input type="checkbox" class="filled-in" id="wednesday-evenings" {% if user.availability.wed.evening %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -153,19 +163,19 @@
                                                     <td class="hide-on-med-and-up">Th</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="thursday-mornings" />
+                                                            <input type="checkbox" class="filled-in" id="thursday-mornings" {% if user.availability.thu.morning %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="thursday-afternoons" />
+                                                            <input type="checkbox" class="filled-in" id="thursday-afternoons" {% if user.availability.thu.afternoon %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="thursday-evenings" />
+                                                            <input type="checkbox" class="filled-in" id="thursday-evenings" {% if user.availability.thu.evening %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -175,19 +185,19 @@
                                                     <td class="hide-on-med-and-up">F</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="friday-mornings" />
+                                                            <input type="checkbox" class="filled-in" id="friday-mornings" {% if user.availability.fri.morning %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="friday-afternoons" />
+                                                            <input type="checkbox" class="filled-in" id="friday-afternoons" {% if user.availability.fri.afternoon %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="friday-evenings" />
+                                                            <input type="checkbox" class="filled-in" id="friday-evenings" {% if user.availability.fri.evening %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -197,19 +207,19 @@
                                                     <td class="hide-on-med-and-up">Sa</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="satday-mornings" />
+                                                            <input type="checkbox" class="filled-in" id="saturday-mornings" {% if user.availability.sat.morning %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="satday-afternoons" />
+                                                            <input type="checkbox" class="filled-in" id="saturday-afternoons" {% if user.availability.sat.afternoon %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="satday-evenings" />
+                                                            <input type="checkbox" class="filled-in" id="saturday-evenings" {% if user.availability.sat.evening %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -219,28 +229,27 @@
                                     </div>
                                 </div>
                             </form>
-                            <div>
+                            {% if edit %}
                                 <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Cancel</a>
+                                    <a id="cancel" class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Cancel</a>
+                                </div>
+                                <div class="col s12 m6 l3">
+                                    <a href="#modal-password" class="waves-effect waves-light btn light-blue modal-trigger" style="width: 100%; margin-bottom: 10px;">Password Reset</a>
+                                </div>
+                                <div class="col s12 m6 l3">
+                                    <a href="#modal-delete" class="waves-effect waves-light btn light-blue modal-trigger" style="width: 100%; margin-bottom: 10px;">Delete User</a>
+                                </div>
+                                <div class="col s12 m6 l3">
+                                    <a id="save" data-new="false" class="waves-effect waves-light btn light-blue" style="width: 100%;">Submit Changes</a>
+                                </div>
+                            {% else %}
+                                <div class="col s12 m6 l3">
+                                    <a id="cancel" class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Cancel</a>
                                 </div>
                                 <div class="col s12 m6 l3 offset-l6">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%;">Add User</a>
+                                    <a id="save" data-new="true" class="waves-effect waves-light btn light-blue" style="width: 100%;">Add User</a>
                                 </div>
-                            </div>
-                            <div style="display: none;">
-                                <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Back</a>
-                                </div>
-                                <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Password Reset</a>
-                                </div>
-                                <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Delete User</a>
-                                </div>
-                                <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%;">Submit Changes</a>
-                                </div>
-                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -248,3 +257,38 @@
         </div>
     </div>
 </div>
+
+<div id="modal-password" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4>
+            Password Reset
+            <a href="#!" class="modal-close btn-flat right"><i class="material-icons">close</i></a>
+        </h4>
+        <div class="row" style="margin: 0;">
+            <div class="input-field col s12">
+                <input id="password" type="password" style="margin-bottom: 0;">
+                <label for="password">Password</label>
+            </div>
+    </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-light-blue btn-flat">Cancel</a>
+        <a id="reset" data-user="{{ user.staffNumber }}" href="#!" class="waves-effect waves-light-blue btn-flat">Reset</a>
+    </div>
+</div>
+
+<div id="modal-delete" class="modal bottom-sheet">
+    <div class="modal-content">
+        <h4>
+            Delete User
+            <a href="#!" class="modal-close btn-flat right"><i class="material-icons">close</i></a>
+        </h4>
+        <p>Are you sure that you want to remove {{ user.firstName }} {{ user.lastName }}'s account? This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-light-blue btn-flat">Cancel</a>
+        <a id="delete" data-user="{{ user.staffNumber }}" href="#!" class="modal-close waves-effect waves-light-blue btn-flat">Delete</a>
+    </div>
+</div>
+
+<script src="/js/staff_manage.js"></script>

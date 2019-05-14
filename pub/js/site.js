@@ -22,6 +22,7 @@ $(document).delegate(".sidenav a:not(#logout)", "click", function() {
             $("#content").html(res);
             M.AutoInit();
             $("#content").fadeIn("fast", function() {
+                $('.tooltip').tooltip("destroy");
                 stopOverflow();
             });
         });

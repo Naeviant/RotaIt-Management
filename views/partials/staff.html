@@ -11,7 +11,7 @@
                                 <tr style="border: none; height: 72px;">
                                     <td></td><td class="hide-on-small-only"></td><td class="hide-on-med-and-down"></td><td class="hide-on-med-and-down"></td><td class="hide-on-med-and-down"></td>
                                     <td class="hide-on-small-only">
-                                        <a class="waves-effect waves-light btn light-blue tooltipped" data-position="left" data-tooltip="New User"><i class="material-icons">add</i></a>
+                                        <a id="add" class="waves-effect waves-light btn light-blue tooltipped" data-position="left" data-tooltip="New User"><i class="material-icons">add</i></a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -32,16 +32,17 @@
                                         <td class="hide-on-med-and-down">{{ staff.jobRole }}</td>
                                         <td class="hide-on-med-and-down">{{ staff.hours}}</td>
                                         <td>
-                                            <a class="waves-effect waves-light btn light-blue tooltipped {% if staff.staffNumber == loggedin %} disabled {% endif %}" data-position="left" data-tooltip="Manage User"><i class="material-icons">build</i></a>
+                                            <a id="edit" class="waves-effect waves-light btn light-blue tooltipped {% if staff.staffNumber == loggedin %} disabled {% endif %}" data-position="left" data-tooltip="Manage User" data-user="{{ staff.staffNumber }}"><i class="material-icons">build</i></a>
                                         </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                        <a class="waves-effect waves-light btn light-blue hide-on-med-and-up" style="width: 100%; margin-top: 20px;">New User</a>
+                        <a id="add" class="waves-effect waves-light btn light-blue hide-on-med-and-up" style="width: 100%; margin-top: 20px;">New User</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script src="/js/staff.js"></script>
