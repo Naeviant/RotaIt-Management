@@ -6,17 +6,18 @@
             <div class="card-content">
                 <div class="row" style="margin: 0;">
                     <div class="col s12 center">
-                        <h4>
+                        <h4 id="header" data-week="{{ week.weekNumber }}" data-year="{{ week.year }}">
                             Rota for Week {{ week.weekNumber }} ({{ week.year }})
-                            <a href="#!" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Save" style="margin-left: 5px;"><i class="material-icons">save</i></a>
-                            <a href="#!" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Verify" style="margin-left: 5px;"><i class="material-icons">done</i></a>
+                            <a href="#!" id="publish" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Publish" style="margin-left: 5px;"><i class="material-icons">publish</i></a>
+                            <a href="#!" id="save" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Save" style="margin-left: 5px;"><i class="material-icons">save</i></a>
+                            <a href="#!" id="verify" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Verify" style="margin-left: 5px;"><i class="material-icons">done</i></a>
                             <a href="#modal-settings" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Week Settings" style="margin-left: 5px;"><i class="material-icons">settings</i></a>
                             <a href="#modal-colours" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Colour Key" style="margin-left: 5px;"><i class="material-icons">format_color_fill</i></a>
                             <a href="#modal-team" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Team Info" style="margin-left: 5px;"><i class="material-icons">face</i></a>
                         </h4>
                     </div>
                     <div class="col s12" style="overflow-x: auto;">
-                        <table>
+                        <table id="rota">
                             <thead>
                                 <tr>
                                     <td rowspan="3">Name & <br> Staff Number</td>
@@ -329,3 +330,5 @@
         </table>
     </div>
 </div>
+
+<script src="/js/rota_manage.js"></script>

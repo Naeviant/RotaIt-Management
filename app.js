@@ -238,6 +238,94 @@ app.get("/partial/rota_manage/", function(req, res) {
     }
 });
 
+// Get Week Data
+app.get("/week/", function(req, res) {
+if (req.session.loggedin) {
+        if (req.query.week && req.query.year) {
+            req.db.collection("users").findOne({
+                staffNumber: req.session.loggedin
+            }, function(err, resp) {
+                if (resp.manager === true) {
+                    req.query.week = parseInt(req.query.week);
+                    req.query.year = parseInt(req.query.year);
+                    req.db.collection("weeks").findOne({
+                        weekNumber: req.query.week,
+                        year: req.query.year
+                    }, function(err, week) {
+                        res.send({
+                            status: 200,
+                            week: week
+                        });
+                    });
+                }
+                else {
+                    res.send({
+                        status: 401,
+                        message: "Insufficient Privileges"
+                    });
+                }
+            });
+        }
+        else {
+            res.send({
+                status: 400,
+                message: "Invalid Parameters Sent"
+            });
+        }
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
+// Get Rota Data
+app.get("/rota/", function(req, res) {
+if (req.session.loggedin) {
+        if (req.query.week && req.query.year) {
+            req.db.collection("users").findOne({
+                staffNumber: req.session.loggedin
+            }, function(err, resp) {
+                if (resp.manager === true) {
+                    req.query.week = parseInt(req.query.week);
+                    req.query.year = parseInt(req.query.year);
+                    req.db.collection("shifts").find({
+                        weekNumber: req.query.week,
+                        year: req.query.year
+                    }, function(err, shifts) {
+                        shifts.toArray().then(function(rota) {
+                            res.send({
+                                status: 200,
+                                rota: rota
+                            });
+                        });
+                    });
+                }
+                else {
+                    res.send({
+                        status: 401,
+                        message: "Insufficient Privileges"
+                    });
+                }
+            });
+        }
+        else {
+            res.send({
+                status: 400,
+                message: "Invalid Parameters Sent"
+            });
+        }
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
 // Get Partial - 404
 app.get("/partial/*", function(req, res) {
     res.render("partials/error", {
@@ -361,15 +449,8 @@ app.post("/staff/", function(req, res) {
     }
 });
 
-// Accept Logout Requests
-app.post("/logout/", function(req, res) {
-    req.session.destroy();
-    res.sendStatus(200);
-});
-
 // Accept Password Reset Requests
 app.post("/password/", function(req, res) {
-    console.log(req.body)
     if (req.session.loggedin) {
         if (req.body.password) {
             req.db.collection("users").findOne({
@@ -410,6 +491,80 @@ app.post("/password/", function(req, res) {
             message: "Authentication Failed"
         });
     }
+});
+
+// Accept Save Rota Requests
+app.post("/rota/save/", function(req, res) {
+    if (req.session.loggedin) {
+        if (req.body.weekNumber && req.body.year && req.body.shifts) {
+            req.db.collection("users").findOne({
+                staffNumber: req.session.loggedin
+            }, function(err, resp) {
+                if (resp.manager === true) {
+                    req.body.weekNumber = parseInt(req.body.weekNumber);
+                    req.body.year = parseInt(req.body.year);
+                    if (!isNaN(req.body.weekNumber) && !isNaN(req.body.weekNumber)) {
+                        for (shift of req.body.shifts) {
+                            shift.start = new Date(shift.start).getTime();
+                            shift.end = new Date(shift.end).getTime();
+                            shift.breaks = parseInt(shift.breaks);
+                            shift.provisional = true;
+                            shift.weekNumber = parseInt(req.body.weekNumber);
+                            shift.year = parseInt(req.body.year);
+                            if (isNaN(shift.start) || isNaN(shift.end) || isNaN(shift.breaks)) {
+                                res.send({
+                                    status: 400,
+                                    message: "Invalid Parameters Sent"
+                                });
+                                break;
+                            }
+                        }
+                        req.db.collection("shifts").deleteMany({
+                            weekNumber: req.body.weekNumber,
+                            year: req.body.year
+                        }, function(err, done) {
+                            req.db.collection("shifts").insertMany(req.body.shifts, function(err, done) {
+                                res.send({
+                                    status: 200,
+                                    message: "Rota Saved Successfully"
+                                });
+                            });
+                        });
+                    }
+                    else {
+                        res.send({
+                            status: 400,
+                            message: "Invalid Parameters Sent"
+                        });
+                    }
+                }
+                else {
+                    res.send({
+                        status: 401,
+                        message: "Insufficient Privileges"
+                    });
+                }
+            });
+        }
+        else {
+            res.send({
+                status: 400,
+                message: "Invalid Parameters Sent"
+            });
+        }
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
+// Accept Logout Requests
+app.post("/logout/", function(req, res) {
+    req.session.destroy();
+    res.sendStatus(200);
 });
 
 // Accept User Deletion Requests
