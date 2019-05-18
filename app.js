@@ -207,7 +207,7 @@ app.get("/partial/rota_manage/", function(req, res) {
                                             closedStaff: new Date(72900000)
                                         }
                                     }
-                                } 
+                                }
                                 res.render("partials/rota_manage", {
                                     team: team,
                                     week: week
@@ -507,7 +507,7 @@ app.post("/rota/save/", function(req, res) {
                 if (resp.manager === true) {
                     req.body.weekNumber = parseInt(req.body.weekNumber);
                     req.body.year = parseInt(req.body.year);
-                    if (!isNaN(req.body.weekNumber) && !isNaN(req.body.weekNumber)) {
+                    if (!isNaN(req.body.weekNumber) && !isNaN(req.body.year)) {
                         for (shift of req.body.shifts) {
                             shift.start = new Date(shift.start).getTime();
                             shift.end = new Date(shift.end).getTime();
@@ -544,6 +544,87 @@ app.post("/rota/save/", function(req, res) {
                                 });
                             });
                         });
+                    }
+                    else {
+                        res.send({
+                            status: 400,
+                            message: "Invalid Parameters Sent"
+                        });
+                    }
+                }
+                else {
+                    res.send({
+                        status: 401,
+                        message: "Insufficient Privileges"
+                    });
+                }
+            });
+        }
+        else {
+            res.send({
+                status: 400,
+                message: "Invalid Parameters Sent"
+            });
+        }
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
+// Accept Week Save Requests
+app.post("/week/", function(req, res) {
+    if (req.session.loggedin) {
+        if (req.body.weekNumber && req.body.year) {
+            req.db.collection("users").findOne({
+                staffNumber: req.session.loggedin
+            }, function(err, resp) {
+                if (resp.manager === true) {
+                    req.body.weekNumber = parseInt(req.body.weekNumber);
+                    req.body.year = parseInt(req.body.year);
+                    var invalid = false;
+                    if (!isNaN(req.body.weekNumber) && !isNaN(req.body.year) && req.body.sun && req.body.mon && req.body.tue && req.body.wed && req.body.thu && req.body.fri && req.body.sat) {
+                        for (var key of Object.keys(req.body)) {
+                            if (key == "weekNumber" || key == "year") {
+                                continue;
+                            }
+                            if (!req.body[key].openCustomers || !req.body[key].closedCustomers || !req.body[key].openStaff || !req.body[key].closedStaff) {
+                                invalid = true;
+                            }
+                            else {
+                                req.body[key].closed = (req.body[key].closed == "true");
+                                req.body[key].bankHoliday = (req.body[key].bankHoliday == "true");
+                                req.body[key].openCustomers = new Date(Date.UTC(1970, 0, 1, parseInt(req.body[key].openCustomers.split(":")[0]), parseInt(req.body[key].openCustomers.split(":")[1])));
+                                req.body[key].closedCustomers = new Date(Date.UTC(1970, 0, 1, parseInt(req.body[key].closedCustomers.split(":")[0]), parseInt(req.body[key].closedCustomers.split(":")[1])));
+                                req.body[key].openStaff = new Date(Date.UTC(1970, 0, 1, parseInt(req.body[key].openStaff.split(":")[0]), parseInt(req.body[key].openStaff.split(":")[1])));
+                                req.body[key].closedStaff = new Date(Date.UTC(1970, 0, 1, parseInt(req.body[key].closedStaff.split(":")[0]), parseInt(req.body[key].closedStaff.split(":")[1])));
+                                if (isNaN(req.body[key].openCustomers.getTime()) || isNaN(req.body[key].closedCustomers.getTime()) || isNaN(req.body[key].openStaff.getTime()) || isNaN(req.body[key].closedStaff.getTime())) {
+                                    invalid = true;
+                                }
+                            }
+                        }
+                        if (invalid === false) {
+                            req.db.collection("weeks").updateOne({
+                                weekNumber: req.body.weekNumber,
+                                year: req.body.year
+                            }, {
+                                $set: req.body
+                            }, function(err, done) {
+                                res.send({
+                                    status: 200,
+                                    message: "Week Settings Saved Successfully"
+                                });
+                            });
+                        }
+                        else {
+                            res.send({
+                                status: 400,
+                                message: "Invalid Parameters Sent"
+                            });
+                        }
                     }
                     else {
                         res.send({

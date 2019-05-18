@@ -32,13 +32,13 @@
                                     <td colspan="3">Saturday</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="3">12/05/2019</td>
-                                    <td colspan="3">13/05/2019</td>
-                                    <td colspan="3">14/05/2019</td>
-                                    <td colspan="3">15/05/2019</td>
-                                    <td colspan="3">16/05/2019</td>
-                                    <td colspan="3">17/05/2019</td>
-                                    <td colspan="3">18/05/2019</td>
+                                    <td colspan="3"></td>
+                                    <td colspan="3"></td>
+                                    <td colspan="3"></td>
+                                    <td colspan="3"></td>
+                                    <td colspan="3"></td>
+                                    <td colspan="3"></td>
+                                    <td colspan="3"></td>
                                 </tr>
                                 <tr>
                                     <td>In</td>
@@ -181,6 +181,7 @@
         <h4>    
             Week Settings
             <a href="#!" class="modal-close btn-flat right"><i class="material-icons">close</i></a>
+            <a id="save-week" href="#!" class="btn-flat right">Save</a>
         </h4>
         <table style="overflow-x: auto;">
             <thead>
@@ -199,134 +200,134 @@
                     <th>Sunday</th>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.sun.closed %} checked {% endif %} />
+                            <input id="week-sun-closed" type="checkbox" class="filled-in" {% if week.sun.closed %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.sun.bankHoliday %} checked {% endif %} />
+                            <input id="week-sun-bankhol" type="checkbox" class="filled-in" {% if week.sun.bankHoliday %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time" value="{{ week.sun.openCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.sun.closedCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.sun.openStaff|time }}"></td>
-                    <td><input type="time" value="{{ week.sun.closedStaff|time }}"></td>
+                    <td><input id="week-sun-open-customers" type="time" value="{{ week.sun.openCustomers|time }}"></td>
+                    <td><input id="week-sun-closed-customers" type="time" value="{{ week.sun.closedCustomers|time }}"></td>
+                    <td><input id="week-sun-open-staff" type="time" value="{{ week.sun.openStaff|time }}"></td>
+                    <td><input id="week-sun-closed-staff" type="time" value="{{ week.sun.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Monday</th>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.mon.closed %} checked {% endif %} />
+                            <input id="week-mon-closed" type="checkbox" class="filled-in" {% if week.mon.closed %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.mon.bankHoliday %} checked {% endif %} />
+                            <input id="week-mon-bankhol" type="checkbox" class="filled-in" {% if week.mon.bankHoliday %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time" value="{{ week.mon.openCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.mon.closedCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.mon.openStaff|time }}"></td>
-                    <td><input type="time" value="{{ week.mon.closedStaff|time }}"></td>
+                    <td><input id="week-mon-open-customers" type="time" value="{{ week.mon.openCustomers|time }}"></td>
+                    <td><input id="week-mon-closed-customers" type="time" value="{{ week.mon.closedCustomers|time }}"></td>
+                    <td><input id="week-mon-open-staff" type="time" value="{{ week.mon.openStaff|time }}"></td>
+                    <td><input id="week-mon-closed-staff" type="time" value="{{ week.mon.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Tuesday</th>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.tue.closed %} checked {% endif %} />
+                            <input id="week-tue-closed" type="checkbox" class="filled-in" {% if week.tue.closed %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.tue.bankHoliday %} checked {% endif %} />
+                            <input id="week-tue-bankhol" type="checkbox" class="filled-in" {% if week.tue.bankHoliday %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time" value="{{ week.tue.openCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.tue.closedCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.tue.openStaff|time }}"></td>
-                    <td><input type="time" value="{{ week.tue.closedStaff|time }}"></td>
+                    <td><input id="week-tue-open-customers" type="time" value="{{ week.tue.openCustomers|time }}"></td>
+                    <td><input id="week-tue-closed-customers" type="time" value="{{ week.tue.closedCustomers|time }}"></td>
+                    <td><input id="week-tue-open-staff" type="time" value="{{ week.tue.openStaff|time }}"></td>
+                    <td><input id="week-tue-closed-staff" type="time" value="{{ week.tue.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Wednesday</th>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.wed.closed %} checked {% endif %} />
+                            <input id="week-wed-closed" type="checkbox" class="filled-in" {% if week.wed.closed %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.wed.bankHoliday %} checked {% endif %} />
+                            <input id="week-wed-bankhol" type="checkbox" class="filled-in" {% if week.wed.bankHoliday %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time" value="{{ week.wed.openCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.wed.closedCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.wed.openStaff|time }}"></td>
-                    <td><input type="time" value="{{ week.wed.closedStaff|time }}"></td>
+                    <td><input id="week-wed-open-customers" type="time" value="{{ week.wed.openCustomers|time }}"></td>
+                    <td><input id="week-wed-closed-customers" type="time" value="{{ week.wed.closedCustomers|time }}"></td>
+                    <td><input id="week-wed-open-staff" type="time" value="{{ week.wed.openStaff|time }}"></td>
+                    <td><input id="week-wed-closed-staff" type="time" value="{{ week.wed.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Thursday</th>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.thu.closed %} checked {% endif %} />
+                            <input id="week-thu-closed" type="checkbox" class="filled-in" {% if week.thu.closed %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.thu.bankHoliday %} checked {% endif %} />
+                            <input id="week-thu-bankhol" type="checkbox" class="filled-in" {% if week.thu.bankHoliday %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time" value="{{ week.thu.openCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.thu.closedCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.thu.openStaff|time }}"></td>
-                    <td><input type="time" value="{{ week.thu.closedStaff|time }}"></td>
+                    <td><input id="week-thu-open-customers" type="time" value="{{ week.thu.openCustomers|time }}"></td>
+                    <td><input id="week-thu-closed-customers" type="time" value="{{ week.thu.closedCustomers|time }}"></td>
+                    <td><input id="week-thu-open-staff" type="time" value="{{ week.thu.openStaff|time }}"></td>
+                    <td><input id="week-thu-closed-staff" type="time" value="{{ week.thu.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Friday</th>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.fri.closed %} checked {% endif %} />
+                            <input id="week-fri-closed" type="checkbox" class="filled-in" {% if week.fri.closed %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.fri.bankHoliday %} checked {% endif %} />
+                            <input id="week-fri-bankhol" type="checkbox" class="filled-in" {% if week.fri.bankHoliday %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time" value="{{ week.fri.openCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.fri.closedCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.fri.openStaff|time }}"></td>
-                    <td><input type="time" value="{{ week.fri.closedStaff|time }}"></td>
+                    <td><input id="week-fri-open-customers" type="time" value="{{ week.fri.openCustomers|time }}"></td>
+                    <td><input id="week-fri-closed-customers" type="time" value="{{ week.fri.closedCustomers|time }}"></td>
+                    <td><input id="week-fri-open-staff" type="time" value="{{ week.fri.openStaff|time }}"></td>
+                    <td><input id="week-fri-closed-staff" type="time" value="{{ week.fri.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Saturday</th>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.sat.closed %} checked {% endif %} />
+                            <input id="week-sat-closed" type="checkbox" class="filled-in" {% if week.sat.closed %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
                     <td>
                         <label>
-                            <input type="checkbox" class="filled-in" {% if week.sat.bankHoliday %} checked {% endif %} />
+                            <input id="week-sat-bankhol" type="checkbox" class="filled-in" {% if week.sat.bankHoliday %} checked {% endif %} />
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time" value="{{ week.sat.openCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.sat.closedCustomers|time }}"></td>
-                    <td><input type="time" value="{{ week.sat.openStaff|time }}"></td>
-                    <td><input type="time" value="{{ week.sat.closedStaff|time }}"></td>
+                    <td><input id="week-sat-open-customers" type="time" value="{{ week.sat.openCustomers|time }}"></td>
+                    <td><input id="week-sat-closed-customers" type="time" value="{{ week.sat.closedCustomers|time }}"></td>
+                    <td><input id="week-sat-open-staff" type="time" value="{{ week.sat.openStaff|time }}"></td>
+                    <td><input id="week-sat-closed-staff" type="time" value="{{ week.sat.closedStaff|time }}"></td>
                 </tr>
             </tbody>
         </table>
