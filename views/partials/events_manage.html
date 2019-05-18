@@ -10,11 +10,16 @@
                         <div class="row" style="margin: 0;">
                             <form class="col s12">
                                 <div class="row" style="margin: 0;">
-                                    <div class="input-field col s12 m6 l3">
-                                        <input id="staffnumber" type="text">
-                                        <label for="staffnumber">Staff Number</label>
+                                    <div id="staffnumber" class="input-field col s12 m6 l3">
+                                        <select>
+                                            <option value="" disabled selected></option>
+                                            {% for staff in team %}
+                                                <option value="{{ staff.staffNumber }}">{{ staff.firstName }} {{ staff.lastName }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <label>Staff</label>
                                     </div>
-                                    <div class="input-field col s12 m6 l3">
+                                    <div id="type" class="input-field col s12 m6 l3">
                                         <select>
                                             <option value="" disabled selected></option>
                                             <option value="sickness">Sickness</option>
@@ -31,18 +36,21 @@
                                     </div>
                                     <div class="input-field col s12 m6 l3">
                                         <input id="to" type="date">
-                                        <label for=tor">To Date</label>
+                                        <label for="to">To Date</label>
                                     </div>
                                 </div>
                             </form>
                             <div>
-                                <div class="col s12 m6 offset-m6 l3 offset-l9">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%;">Add Event</a>
+                                <div class="col s12 m6 l3">
+                                    <a id="cancel-event" class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Cancel</a>
+                                </div>
+                                <div class="col s12 m6 l3 offset-l6">
+                                    <a id="save-event" class="waves-effect waves-light btn light-blue" style="width: 100%;">Add Event</a>
                                 </div>
                             </div>
                             <div style="display: none;">
                                 <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Back</a>
+                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Cancel</a>
                                 </div>
                                 <div class="col s12 m6 l3">
                                     <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Archive Event</a>
@@ -61,3 +69,4 @@
         </div>
     </div>
 </div>
+<script src="/js/events_manage.js"></script>

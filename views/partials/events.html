@@ -11,7 +11,7 @@
                                 <tr style="border: none; height: 72px;">
                                     <td></td><td class="hide-on-med-and-down"></td><td></td><td></td><td></td>
                                     <td class="hide-on-small-only">
-                                        <a href="modal-manage" class="modal-trigger waves-effect waves-light btn light-blue tooltipped" data-position="left" data-tooltip="New Event"><i class="material-icons">add</i></a>
+                                        <a id="add-event" class="modal-trigger waves-effect waves-light btn light-blue tooltipped" data-position="left" data-tooltip="New Event"><i class="material-icons">add</i></a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -26,16 +26,18 @@
                                 </tr>
                             </thead>
                             <tbody style="max-height: 700px; overflow: auto;">
-                                <tr>
-                                    <td>Samuel Hirst</td>
-                                    <td class="hide-on-med-and-down">------</td>
-                                    <td>Long Term Sickness</td>
-                                    <td>06/05/2019</td>
-                                    <td>03/06/2019</td>
-                                    <td>
-                                        <a class="waves-effect waves-light btn light-blue tooltipped" data-position="left" data-tooltip="Manage Event"><i class="material-icons">build</i></a>
-                                    </td>
-                                </tr>
+                                {% for event in events %}
+                                    <tr>
+                                        <td>{{ event.fullName }}</td>
+                                        <td class="hide-on-med-and-down">{{ event.staffNumber }}</td>
+                                        <td style="text-transform: capitalize;">{{ event.type }}</td>
+                                        <td>{{ event.from|toDate }}</td>
+                                        <td>{{ event.to|toDate }}</td>
+                                        <td>
+                                            <a id="edit-event" class="waves-effect waves-light btn light-blue tooltipped" data-position="left" data-tooltip="Manage Event"><i class="material-icons">build</i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                         <a class="waves-effect waves-light btn light-blue hide-on-med-and-up" style="width: 100%; margin-top: 20px;">New Event</a>
@@ -45,3 +47,4 @@
         </div>
     </div>
 </div>
+<script src="/js/events.js"></script>

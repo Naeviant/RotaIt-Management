@@ -18,6 +18,10 @@ var njk = nunjucks(app, {
         date: function(d) {
             return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
         },
+        toDate: function(t) {
+            var d = new Date(t);
+            return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+        },
         time: function(d) {
             return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + (d.getUTCMinutes())).slice(-2);
         }
@@ -80,7 +84,7 @@ app.get("/partial/staff/", function(req, res) {
     }
 });
 
-// Get Partial - New Staff
+// Get Partial - Manage Staff
 app.get("/partial/staff_manage/", function(req, res) {
     if (req.session.loggedin) {
         if (req.query && req.query.staffNumber) {
@@ -238,6 +242,61 @@ app.get("/partial/rota_manage/", function(req, res) {
         res.render("partials/error", {
             code: 403,
             message: "Authentication with the server failed. Please try again later."
+        });
+    }
+});
+
+// Get Partial - Additional Events
+app.get("/partial/events/", function(req, res) {
+    if (req.session.loggedin) {
+        req.db.collection("events").find({
+                archived: false
+            }, {
+                sort: [["from", "ascending"]]
+            }, function(err, resp) {
+                resp.toArray().then(function(events) {
+                    res.render("partials/events", {
+                        events: events
+                    });
+                });
+            });
+    }
+    else {
+        res.render("partials/error", {
+            code: 403,
+            message: "You are not authorised to view this page."
+        });
+    }
+});
+
+// Get Partial - Additional Event
+app.get("/partial/events_manage/", function(req, res) {
+    if (req.session.loggedin) {
+        req.db.collection("users").findOne({
+            staffNumber: req.session.loggedin
+        }, function(err, resp) {
+            req.db.collection("users").find({
+                team: resp.team
+            }, {
+                sort: [["firstName", "ascending"]]
+            }, function(err, resp) {
+                resp.toArray().then(function(team) {
+                    if (req.query && req.query.id) {
+                        
+                    }
+                    else {
+                        res.render("partials/events_manage", {
+                            team: team
+                        });
+                    }
+                });
+            });
+        });
+    }
+    else {
+        res.render("partials/error", {
+            code: 403,
+            message: "You are not authorised to view this page."
         });
     }
 });
@@ -647,6 +706,47 @@ app.post("/week/", function(req, res) {
                 message: "Invalid Parameters Sent"
             });
         }
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
+// Accept New Additional Events
+app.post("/event/", function(req, res) {
+    if (req.session.loggedin) {
+        req.db.collection("users").findOne({
+            staffNumber: req.session.loggedin
+        }, function(err, resp) {
+            if (resp.manager === true) {
+                req.body.from = new Date(req.body.from).getTime();
+                req.body.to = new Date(req.body.to).getTime();
+                if (req.body.staffNumber && req.body.fullName && req.body.type && req.body.from && !isNaN(req.body.from) && req.body.to && !isNaN(req.body.to)) {
+                    req.body.archived = false;
+                    req.db.collection("events").insertOne(req.body, function(err, done) {
+                        res.send({
+                            status: 200,
+                            message: "User Added Successfully"
+                        });
+                    });
+                }
+                else {
+                    res.send({
+                        status: 400,
+                        message: "Missing Fields"
+                    });
+                }
+            }
+            else {
+                res.send({
+                    status: 401,
+                    message: "Insufficient Privileges"
+                });
+            }
+        });
     }
     else {
         res.send({
