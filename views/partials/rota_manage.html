@@ -9,7 +9,9 @@
                         <h4 id="header" data-week="{{ week.weekNumber }}" data-year="{{ week.year }}">
                             Rota for Week {{ week.weekNumber }} ({{ week.year }})
                             <a href="#!" id="publish" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Publish" style="margin-left: 5px;"><i class="material-icons">publish</i></a>
-                            <a href="#!" id="save" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Save" style="margin-left: 5px;"><i class="material-icons">save</i></a>
+                            {% if week.published === false %}
+                                <a href="#!" id="save" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Save" style="margin-left: 5px;"><i class="material-icons">save</i></a>
+                            {% endif %}
                             <a href="#!" id="verify" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Verify" style="margin-left: 5px;"><i class="material-icons">done</i></a>
                             <a href="#modal-settings" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Week Settings" style="margin-left: 5px;"><i class="material-icons">settings</i></a>
                             <a href="#modal-colours" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Colour Key" style="margin-left: 5px;"><i class="material-icons">format_color_fill</i></a>
@@ -207,10 +209,10 @@
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
+                    <td><input type="time" value="{{ week.sun.openCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.sun.closedCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.sun.openStaff|time }}"></td>
+                    <td><input type="time" value="{{ week.sun.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Monday</th>
@@ -226,10 +228,10 @@
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
+                    <td><input type="time" value="{{ week.mon.openCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.mon.closedCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.mon.openStaff|time }}"></td>
+                    <td><input type="time" value="{{ week.mon.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Tuesday</th>
@@ -245,10 +247,10 @@
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
+                    <td><input type="time" value="{{ week.tue.openCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.tue.closedCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.tue.openStaff|time }}"></td>
+                    <td><input type="time" value="{{ week.tue.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Wednesday</th>
@@ -264,10 +266,10 @@
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
+                    <td><input type="time" value="{{ week.wed.openCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.wed.closedCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.wed.openStaff|time }}"></td>
+                    <td><input type="time" value="{{ week.wed.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Thursday</th>
@@ -283,10 +285,10 @@
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
+                    <td><input type="time" value="{{ week.thu.openCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.thu.closedCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.thu.openStaff|time }}"></td>
+                    <td><input type="time" value="{{ week.thu.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Friday</th>
@@ -302,10 +304,10 @@
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
+                    <td><input type="time" value="{{ week.fri.openCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.fri.closedCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.fri.openStaff|time }}"></td>
+                    <td><input type="time" value="{{ week.fri.closedStaff|time }}"></td>
                 </tr>
                 <tr>
                     <th>Saturday</th>
@@ -321,10 +323,10 @@
                             <span></span>
                         </label>
                     </td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
-                    <td><input type="time"></td>
+                    <td><input type="time" value="{{ week.sat.openCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.sat.closedCustomers|time }}"></td>
+                    <td><input type="time" value="{{ week.sat.openStaff|time }}"></td>
+                    <td><input type="time" value="{{ week.sat.closedStaff|time }}"></td>
                 </tr>
             </tbody>
         </table>

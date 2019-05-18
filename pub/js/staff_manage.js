@@ -70,7 +70,7 @@ $(document).delegate("#save", "click", function() {
                 $(".sidenav a[data-page='staff']").click();
             }
             else {
-
+                
             }
         });
     }

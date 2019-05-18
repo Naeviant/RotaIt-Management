@@ -16,7 +16,10 @@ var njk = nunjucks(app, {
     noCache: true,
     filters: {
         date: function(d) {
-            return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth()+1)).slice(-2) + "/" + d.getFullYear();
+            return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+        },
+        time: function(d) {
+            return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + (d.getUTCMinutes())).slice(-2);
         }
     }
 });
@@ -146,6 +149,7 @@ app.get("/partial/rota_manage/", function(req, res) {
                                     week = {
                                         weekNumber: req.query.week,
                                         year: req.query.year,
+                                        published: false,
                                         sun: {
                                             closed: false,
                                             bankHoliday: false,
@@ -508,7 +512,7 @@ app.post("/rota/save/", function(req, res) {
                             shift.start = new Date(shift.start).getTime();
                             shift.end = new Date(shift.end).getTime();
                             shift.breaks = parseInt(shift.breaks);
-                            shift.provisional = true;
+                            shift.provisional = (shift.provisional == "true");
                             shift.weekNumber = parseInt(req.body.weekNumber);
                             shift.year = parseInt(req.body.year);
                             if (isNaN(shift.start) || isNaN(shift.end) || isNaN(shift.breaks)) {
@@ -524,6 +528,16 @@ app.post("/rota/save/", function(req, res) {
                             year: req.body.year
                         }, function(err, done) {
                             req.db.collection("shifts").insertMany(req.body.shifts, function(err, done) {
+                                if (req.body.publish == "true") {
+                                    req.db.collection("weeks").updateOne({
+                                        weekNumber: req.body.weekNumber,
+                                        year: req.body.year
+                                    }, {
+                                        $set: {
+                                            published: true
+                                        }
+                                    });
+                                }
                                 res.send({
                                     status: 200,
                                     message: "Rota Saved Successfully"
