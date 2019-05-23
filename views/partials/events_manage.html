@@ -10,58 +10,56 @@
                         <div class="row" style="margin: 0;">
                             <form class="col s12">
                                 <div class="row" style="margin: 0;">
-                                    <div id="staffnumber" class="input-field col s12 m6 l3">
+                                    <div id="staffnumber" class="input-field col s12 m6 l3" data-initial="{{ event.staffNumber }}">
                                         <select>
                                             <option value="" disabled selected></option>
                                             {% for staff in team %}
-                                                <option value="{{ staff.staffNumber }}">{{ staff.firstName }} {{ staff.lastName }}</option>
+                                                <option value="{{ staff.staffNumber }}" {% if staff.staffNumber == event.staffNumber %} selected {% endif %}>{{ staff.firstName }} {{ staff.lastName }}</option>
                                             {% endfor %}
                                         </select>
                                         <label>Staff</label>
                                     </div>
-                                    <div id="type" class="input-field col s12 m6 l3">
+                                    <div id="type" class="input-field col s12 m6 l3" data-initial="{{ event.type }}">
                                         <select>
-                                            <option value="" disabled selected></option>
-                                            <option value="sickness">Sickness</option>
-                                            <option value="maternity">Maternity</option>
-                                            <option value="paternity">Paternity</option>
-                                            <option value="course">Course</option>
-                                            <option value="interviewing">Interviewing</option>
+                                            <option value="" disabled {% if not edit %} selected {% endif %}></option>
+                                            <option value="sickness" {% if event.type == "sickness" %} selected {% endif %}>Sickness</option>
+                                            <option value="maternity" {% if event.type == "maternity" %} selected {% endif %}>Maternity</option>
+                                            <option value="paternity" {% if event.type == "paternity" %} selected {% endif %}>Paternity</option>
+                                            <option value="course" {% if event.type == "course" %} selected {% endif %}>Course</option>
+                                            <option value="interviewing" {% if event.type == "interviewing" %} selected {% endif %}>Interviewing</option>
+                                            <option value="suspension" {% if event.type == "suspension" %} selected {% endif %}>Suspension</option>
+                                            <option value="elsewhere" {% if event.type == "elsewhere" %} selected {% endif %}>Working Elsewhere</option>
                                         </select>
                                         <label>Type</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="from" type="date">
+                                        <input id="from" type="date" value="{{ event.from_html }}" data-initial="{{ event.from }}">
                                         <label for="from">From Date</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="to" type="date">
+                                        <input id="to" type="date" value="{{ event.to_html }}" data-initial="{{ event.to }}">
                                         <label for="to">To Date</label>
                                     </div>
                                 </div>
                             </form>
-                            <div>
+                            {% if edit %}
+                                <div class="col s12 m6 l4">
+                                    <a id="cancel-event" class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Cancel</a>
+                                </div>
+                                <div class="col s12 m6 l4">
+                                    <a id="delete-event" class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Delete Event</a>
+                                </div>
+                                <div class="col s12 m12 l4">
+                                    <a id="save-event" class="waves-effect waves-light btn light-blue" style="width: 100%;" data-edit="true">Submit Changes</a>
+                                </div>
+                            {% else %}
                                 <div class="col s12 m6 l3">
                                     <a id="cancel-event" class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Cancel</a>
                                 </div>
                                 <div class="col s12 m6 l3 offset-l6">
                                     <a id="save-event" class="waves-effect waves-light btn light-blue" style="width: 100%;">Add Event</a>
                                 </div>
-                            </div>
-                            <div style="display: none;">
-                                <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Cancel</a>
-                                </div>
-                                <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Archive Event</a>
-                                </div>
-                                <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%; margin-bottom: 10px;">Delete Event</a>
-                                </div>
-                                <div class="col s12 m6 l3">
-                                    <a class="waves-effect waves-light btn light-blue" style="width: 100%;">Submit Changes</a>
-                                </div>
-                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

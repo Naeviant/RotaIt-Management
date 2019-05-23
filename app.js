@@ -92,7 +92,7 @@ app.get("/partial/staff_manage/", function(req, res) {
                 staffNumber: req.query.staffNumber
             }, function(err, resp) {
                 if (resp) {
-                    resp.dob = resp.dob.getFullYear() + "-" + (resp.dob.getMonth() + 1) + "-" + resp.dob.getDate();
+                    resp.dob = resp.dob.getFullYear() + "-" + ("0" + (resp.dob.getMonth() + 1)).slice(-2) + "-" + ("0" + resp.dob.getDate()).slice(-2);
                     res.render("partials/staff_manage", { edit: true, user: resp });
                 }
                 else {
@@ -281,8 +281,25 @@ app.get("/partial/events_manage/", function(req, res) {
                 sort: [["firstName", "ascending"]]
             }, function(err, resp) {
                 resp.toArray().then(function(team) {
-                    if (req.query && req.query.id) {
-                        
+                    if (req.query && req.query.staffNumber && req.query.type && req.query.from && !isNaN(parseInt(req.query.from)) && req.query.to && !isNaN(parseInt(req.query.to))) {
+                        req.query.from = parseInt(req.query.from);
+                        req.query.to = parseInt(req.query.to);
+                        req.db.collection("events").findOne({
+                            staffNumber: req.query.staffNumber,
+                            type: req.query.type,
+                            from: req.query.from,
+                            to: req.query.to
+                        }, function(err, resp) {
+                            resp.from_html = new Date(resp.from);
+                            resp.to_html = new Date(resp.to);
+                            resp.from_html = resp.from_html.getFullYear() + "-" + ("0" + (resp.from_html.getMonth() + 1)).slice(-2) + "-" + ("0" + resp.from_html.getDate()).slice(-2);
+                            resp.to_html = resp.to_html.getFullYear() + "-" + ("0" + (resp.to_html.getMonth() + 1)).slice(-2) + "-" + ("0" + resp.to_html.getDate()).slice(-2);
+                            res.render("partials/events_manage", {
+                                team: team,
+                                edit: true,
+                                event: resp
+                            });
+                        });
                     }
                     else {
                         res.render("partials/events_manage", {
@@ -724,14 +741,33 @@ app.post("/event/", function(req, res) {
             if (resp.manager === true) {
                 req.body.from = new Date(req.body.from).getTime();
                 req.body.to = new Date(req.body.to).getTime();
-                if (req.body.staffNumber && req.body.fullName && req.body.type && req.body.from && !isNaN(req.body.from) && req.body.to && !isNaN(req.body.to)) {
-                    req.body.archived = false;
-                    req.db.collection("events").insertOne(req.body, function(err, done) {
-                        res.send({
-                            status: 200,
-                            message: "User Added Successfully"
+                if (req.body.staffNumber && req.body.fullName && req.body.type && req.body.from && !isNaN(req.body.from) && req.body.to && !isNaN(req.body.to) && req.body.from <= req.body.to) {
+                    if (req.body.initial) {
+                        req.body.initial.from = parseInt(req.body.initial.from);
+                        req.body.initial.to = parseInt(req.body.initial.to)
+                        req.db.collection("events").updateOne(req.body.initial, {
+                            $set: {
+                                staffNumber: req.body.staffNumber,
+                                fullName: req.body.fullName,
+                                type: req.body.type,
+                                from: req.body.from,
+                                to: req.body.to
+                            }
+                        }, function(err, done) {
+                            res.send({
+                                status: 200,
+                                message: "User Updated Successfully"
+                            });
                         });
-                    });
+                    }
+                    else {
+                        req.db.collection("events").insertOne(req.body, function(err, done) {
+                            res.send({
+                                status: 200,
+                                message: "User Added Successfully"
+                            });
+                        });
+                    }
                 }
                 else {
                     res.send({
@@ -777,6 +813,50 @@ app.delete("/staff/", function(req, res) {
                         message: "User Deleted Successfully"
                     });
                 })
+            }
+            else {
+                res.send({
+                    status: 401,
+                    message: "Insufficient Privileges"
+                });
+            }
+        });
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
+// Accept Additional Event Deletion Requests
+app.delete("/event/", function(req, res) {
+    if (req.session.loggedin) {
+        req.db.collection("users").findOne({
+            staffNumber: req.session.loggedin
+        }, function(err, resp) {
+            if (resp.manager === true) {
+                if (req.body && req.body.staffNumber && req.body.type && req.body.from && !isNaN(parseInt(req.body.from)) && req.body.to && !isNaN(parseInt(req.body.to))) {req.body.from = parseInt(req.body.from);
+                    req.body.to = parseInt(req.body.to);
+                    req.db.collection("events").deleteOne({
+                        staffNumber: req.body.staffNumber,
+                        type: req.body.type,
+                        from: req.body.from,
+                        to: req.body.to
+                    }, function(err, done) {
+                        res.send({
+                            status: 200,
+                            message: "Event Deleted Successfully"
+                        });
+                    });
+                }
+                else {
+                    res.send({
+                        status: 400,
+                        message: "Missing Fields"
+                    });
+                }
             }
             else {
                 res.send({

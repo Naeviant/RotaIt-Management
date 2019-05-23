@@ -19,7 +19,12 @@ $(document).delegate("#add-event", "click", function() {
 });
 
 $(document).delegate("#edit-event", "click", function() {
-    $.get("/partial/events_manage?id=", function(res) {
+    $.get("/partial/events_manage", {
+        staffNumber: $(this).closest("tr").find("td:nth-of-type(2)").html(),
+        type: $(this).closest("tr").find("td:nth-of-type(3)").html(),
+        from: $(this).closest("tr").find("td:nth-of-type(4)").data("timestamp"),
+        to: $(this).closest("tr").find("td:nth-of-type(5)").data("timestamp")
+    }, function(res) {
         change(res);
     });
 });
