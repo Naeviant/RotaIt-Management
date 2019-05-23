@@ -249,8 +249,15 @@ app.get("/partial/rota_manage/", function(req, res) {
 // Get Partial - Additional Events
 app.get("/partial/events/", function(req, res) {
     if (req.session.loggedin) {
+        var d = new Date();
+        d.setHours(0);
+        d.setMinutes(0);
+        d.setSeconds(0);
+        d.setMilliseconds(0);
         req.db.collection("events").find({
-                archived: false
+                to: {
+                    $gt: d.getTime()
+                }
             }, {
                 sort: [["from", "ascending"]]
             }, function(err, resp) {
@@ -363,7 +370,7 @@ if (req.session.loggedin) {
 
 // Get Rota Data
 app.get("/rota/", function(req, res) {
-if (req.session.loggedin) {
+    if (req.session.loggedin) {
         if (req.query.week && req.query.year) {
             req.db.collection("users").findOne({
                 staffNumber: req.session.loggedin
@@ -405,6 +412,80 @@ if (req.session.loggedin) {
         });
     }
 });
+
+// Get Event Data
+app.get("/events/", function(req, res) {
+    if (req.session.loggedin) {
+        if (req.query.week && req.query.year) {
+            req.db.collection("users").findOne({
+                staffNumber: req.session.loggedin
+            }, function(err, resp) {
+                if (resp.manager === true) {
+                    var start = new Date(1547942400000 + (parseInt(req.query.week * 604800000))).getTime(),
+                        end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime();
+                    req.db.collection("events").find({
+                        $or: [
+                            { $and: [
+                                    {
+                                        from: {
+                                            $lte: start
+                                        }
+                                    },
+                                    {
+                                        to: {
+                                            $gte: start
+                                        }
+                                    }
+                                ] 
+                            },
+                            {
+                                $and: [
+                                    {
+                                        from: {
+                                            $gte: start
+                                        }
+                                    },
+                                    {
+                                        from: {
+                                            $lte: end
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }, function(err, resp) {
+                        resp.toArray().then(function(events) {
+                            res.send({
+                                status: 200,
+                                events: events
+                            });
+                        });
+                    });
+                }
+                else {
+                    res.send({
+                        status: 401,
+                        message: "Insufficient Privileges"
+                    });
+                }
+            });
+        }
+        else {
+            res.send({
+                status: 400,
+                message: "Invalid Parameters Sent"
+            });
+        }
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
+// 
 
 // Get Partial - 404
 app.get("/partial/*", function(req, res) {
@@ -761,6 +842,7 @@ app.post("/event/", function(req, res) {
                         });
                     }
                     else {
+                        delete req.body.initial;
                         req.db.collection("events").insertOne(req.body, function(err, done) {
                             res.send({
                                 status: 200,

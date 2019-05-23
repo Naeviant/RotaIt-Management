@@ -21,10 +21,10 @@ input {
 .hashed.red {
     background: repeating-linear-gradient(
       45deg,
-      #ffebee,
-      #ffebee 10px,
+      #ffcdd2,
       #ffcdd2 10px,
-      #ffcdd2 20px
+      #ef9a9a 10px,
+      #ef9a9a 20px
     );
 }
 .hashed.purple {
@@ -34,5 +34,14 @@ input {
       #f3e5f5 10px,
       #e1bee7 10px,
       #e1bee7 20px
+    );
+}
+.hashed.black {
+    background: repeating-linear-gradient(
+      45deg,
+      #eceff1,
+      #eceff1 10px,
+      #cfd8dc 10px,
+      #cfd8dc 20px
     );
 }
