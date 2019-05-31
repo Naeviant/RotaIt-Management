@@ -10,25 +10,31 @@
                             <thead>
                                 <tr>
                                     <th colspan="2">From User</th>
-                                    <th>Type</th>
                                     <th>From Date</th>
                                     <th>To Date</th>
+                                    <th>User Comments</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody style="max-height: 700px; overflow: auto;">
-                                <tr>
-                                    <td>Samuel Hirst</td>
-                                    <td>------</td>
-                                    <td>Annual Leave</td>
-                                    <td>28/10/2019</td>
-                                    <td>01/11/2019</td>
-                                    <td>
-                                        <a class="waves-effect waves-light btn light-blue tooltipped" data-position="bottom" data-tooltip="Add Comment"><i class="material-icons">comment</i></a>
-                                        <a class="waves-effect waves-light btn green tooltipped" data-position="bottom" data-tooltip="Approve"><i class="material-icons">done</i></a>
-                                        <a class="waves-effect waves-light btn red tooltipped" data-position="bottom" data-tooltip="Reject"><i class="material-icons">close</i></a>
-                                    </td>
-                                </tr>
+                                {% for request in requests %}
+                                    <tr>
+                                        <td>{{ request.fullName }}</td>
+                                        <td>{{ request.staffNumber }}</td>
+                                        <td data-timestamp={{ request.from }}>{{ request.from|toDate }}</td>
+                                        <td data-timestamp={{ request.to }}>{{ request.to|toDate }}</td>
+                                        <td>
+                                            {% if request.user_comment %}
+                                                {{ request.user_comment }}
+                                            {% else %}
+                                                <em>None</em>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="#modal-action" id="action" class="waves-effect waves-light btn light-blue tooltipped modal-trigger" data-position="left" data-tooltip="Approve/Reject"><i class="material-icons">build</i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -38,16 +44,19 @@
     </div>
 </div>
 
-<div id="modal-comment" class="modal">
+<div id="modal-action" class="modal bottom-sheet">
     <div class="modal-content">
-        <h4>Add Comment</h4>
+        <h4>Approve/Reject Leave Request</h4>
         <div class="input-field">
-          <input id="comment" type="text" class="validate">
-          <label for="comment">Comment Text</label>
+          <input id="comment" type="text">
+          <label for="comment">Comment Text (Optional)</label>
         </div>
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel and Close</a>
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Submit and Close</a>
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+        <a href="#!" id="approve" data-action="approved" class="modal-close waves-effect waves-green btn-flat">Approve</a>
+        <a href="#!" id="reject" data-action="rejected" class="modal-close waves-effect waves-green btn-flat">Reject</a>
     </div>
 </div>
+
+<script src="/js/requests.js"></script>

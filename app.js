@@ -246,6 +246,38 @@ app.get("/partial/rota_manage/", function(req, res) {
     }
 });
 
+// Get Partial - Pending Requests
+app.get("/partial/requests/", function(req, res) {
+    if (req.session.loggedin) {
+        var d = new Date();
+        d.setHours(0);
+        d.setMinutes(0);
+        d.setSeconds(0);
+        d.setMilliseconds(0);
+        req.db.collection("events").find({
+                type: "leave",
+                status: "pending",
+                to: {
+                    $gt: d.getTime()
+                }
+            }, {
+                sort: [["from", "ascending"]]
+            }, function(err, resp) {
+                resp.toArray().then(function(requests) {
+                    res.render("partials/requests", {
+                        requests: requests
+                    });
+                });
+            });
+    }
+    else {
+        res.render("partials/error", {
+            code: 403,
+            message: "You are not authorised to view this page."
+        });
+    }
+});
+
 // Get Partial - Additional Events
 app.get("/partial/events/", function(req, res) {
     if (req.session.loggedin) {
@@ -255,6 +287,11 @@ app.get("/partial/events/", function(req, res) {
         d.setSeconds(0);
         d.setMilliseconds(0);
         req.db.collection("events").find({
+                type: {
+                    $not: {
+                        $eq: "leave"
+                    }
+                },
                 to: {
                     $gt: d.getTime()
                 }
@@ -558,7 +595,6 @@ app.post("/staff/", function(req, res) {
                     req.db.collection("users").findOne({
                         staffNumber: req.body.staffNumber
                     }, function(err, exists) {
-                        console.log(exists, req.body)
                         if (exists && !req.body.newUser) {
                             delete req.body.newUser;
                             req.db.collection("users").updateOne({
@@ -813,6 +849,57 @@ app.post("/week/", function(req, res) {
     }
 });
 
+// Accept Leave Request Changes
+app.post("/requests/", function(req, res) {
+    if (req.session.loggedin) {
+        req.db.collection("users").findOne({
+            staffNumber: req.session.loggedin
+        }, function(err, resp) {
+            if (resp.manager === true) {
+                console.log(req.body)
+                req.body.from = parseInt(req.body.from);
+                req.body.to = parseInt(req.body.to);
+                console.log(req.body)
+                if (req.body.staffNumber && req.body.from && !isNaN(req.body.from) && req.body.to && !isNaN(req.body.to) && (req.body.action == "approved" || req.body.action == "rejected")) {
+                    req.db.collection("events").updateOne({
+                        staffNumber: req.body.staffNumber,
+                        from: req.body.from,
+                        to: req.body.to
+                    }, {
+                        $set: {
+                            manager_comment: req.body.comment,
+                            status: req.body.action
+                        }
+                    }, function(err, done) {
+                        res.send({
+                            status: 200,
+                            message: "Request Updated Successfully"
+                        });
+                    });
+                }
+                else {
+                    res.send({
+                        status: 400,
+                        message: "Missing Fields"
+                    });
+                }
+            }
+            else {
+                res.send({
+                    status: 401,
+                    message: "Insufficient Privileges"
+                });
+            }
+        });
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
 // Accept New Additional Events
 app.post("/event/", function(req, res) {
     if (req.session.loggedin) {
@@ -837,7 +924,7 @@ app.post("/event/", function(req, res) {
                         }, function(err, done) {
                             res.send({
                                 status: 200,
-                                message: "User Updated Successfully"
+                                message: "Event Updated Successfully"
                             });
                         });
                     }
@@ -846,7 +933,7 @@ app.post("/event/", function(req, res) {
                         req.db.collection("events").insertOne(req.body, function(err, done) {
                             res.send({
                                 status: 200,
-                                message: "User Added Successfully"
+                                message: "Event Added Successfully"
                             });
                         });
                     }
