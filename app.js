@@ -259,7 +259,8 @@ app.get("/partial/requests/", function(req, res) {
                 status: "pending",
                 to: {
                     $gt: d.getTime()
-                }
+                },
+                team: req.session.team
             }, {
                 sort: [["from", "ascending"]]
             }, function(err, resp) {
@@ -294,7 +295,8 @@ app.get("/partial/events/", function(req, res) {
                 },
                 to: {
                     $gt: d.getTime()
-                }
+                },
+                team: req.session.team
             }, {
                 sort: [["from", "ascending"]]
             }, function(err, resp) {
@@ -542,6 +544,7 @@ app.post("/login/", function(req, res) {
             if (resp) {
                 if (resp.manager === true) {
                     req.session.loggedin = resp.staffNumber;
+                    req.session.team = resp.team;
                     req.session.name = resp.firstName + " " + resp.lastName;
                     res.send({
                         status: 200,
@@ -907,6 +910,7 @@ app.post("/event/", function(req, res) {
             if (resp.manager === true) {
                 req.body.from = new Date(req.body.from).getTime();
                 req.body.to = new Date(req.body.to).getTime();
+                req.body.team = resp.team;
                 if (req.body.staffNumber && req.body.fullName && req.body.type && req.body.from && !isNaN(req.body.from) && req.body.to && !isNaN(req.body.to) && req.body.from <= req.body.to) {
                     if (req.body.initial) {
                         req.body.initial.from = parseInt(req.body.initial.from);
