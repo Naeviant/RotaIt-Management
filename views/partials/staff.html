@@ -24,18 +24,24 @@
                                 </tr>
                             </thead>
                             <tbody style="max-height: 700px; overflow: auto;">
-                                {% for staff in team %}
+                                {% if team[0] %}
+                                    {% for staff in team %}
+                                        <tr>
+                                            <td>{{ staff.firstName }} {{ staff.lastName }}</td>
+                                            <td class="hide-on-small-only">{{ staff.staffNumber }}</td>
+                                            <td class="hide-on-med-and-down">{{ staff.dob | date }}</td>
+                                            <td class="hide-on-med-and-down">{{ staff.jobRole }}</td>
+                                            <td class="hide-on-med-and-down">{{ staff.hours}}</td>
+                                            <td>
+                                                <a id="edit" class="waves-effect waves-light btn light-blue tooltipped {% if staff.staffNumber == loggedin %} disabled {% endif %}" data-position="left" data-tooltip="Manage User" data-user="{{ staff.staffNumber }}"><i class="material-icons">build</i></a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
                                     <tr>
-                                        <td>{{ staff.firstName }} {{ staff.lastName }}</td>
-                                        <td class="hide-on-small-only">{{ staff.staffNumber }}</td>
-                                        <td class="hide-on-med-and-down">{{ staff.dob | date }}</td>
-                                        <td class="hide-on-med-and-down">{{ staff.jobRole }}</td>
-                                        <td class="hide-on-med-and-down">{{ staff.hours}}</td>
-                                        <td>
-                                            <a id="edit" class="waves-effect waves-light btn light-blue tooltipped {% if staff.staffNumber == loggedin %} disabled {% endif %}" data-position="left" data-tooltip="Manage User" data-user="{{ staff.staffNumber }}"><i class="material-icons">build</i></a>
-                                        </td>
+                                        <td colspan="6" class="center"><em>No results found.</em></td>
                                     </tr>
-                                {% endfor %}
+                                {% endif %}
                             </tbody>
                         </table>
                         <a id="add" class="waves-effect waves-light btn light-blue hide-on-med-and-up" style="width: 100%; margin-top: 20px;">New User</a>

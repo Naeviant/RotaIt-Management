@@ -856,10 +856,8 @@ app.post("/requests/", function(req, res) {
             staffNumber: req.session.loggedin
         }, function(err, resp) {
             if (resp.manager === true) {
-                console.log(req.body)
                 req.body.from = parseInt(req.body.from);
                 req.body.to = parseInt(req.body.to);
-                console.log(req.body)
                 if (req.body.staffNumber && req.body.from && !isNaN(req.body.from) && req.body.to && !isNaN(req.body.to) && (req.body.action == "approved" || req.body.action == "rejected")) {
                     req.db.collection("events").updateOne({
                         staffNumber: req.body.staffNumber,

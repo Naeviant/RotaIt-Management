@@ -26,18 +26,24 @@
                                 </tr>
                             </thead>
                             <tbody style="max-height: 700px; overflow: auto;">
-                                {% for event in events %}
+                                {% if events[0] %}
+                                    {% for event in events %}
+                                        <tr>
+                                            <td>{{ event.fullName }}</td>
+                                            <td class="hide-on-med-and-down">{{ event.staffNumber }}</td>
+                                            <td style="text-transform: capitalize;">{{ event.type }}</td>
+                                            <td data-timestamp="{{ event.from }}">{{ event.from|toDate }}</td>
+                                            <td data-timestamp="{{ event.to }}">{{ event.to|toDate }}</td>
+                                            <td>
+                                                <a id="edit-event" class="waves-effect waves-light btn light-blue tooltipped" data-position="left" data-tooltip="Manage Event"><i class="material-icons">build</i></a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
                                     <tr>
-                                        <td>{{ event.fullName }}</td>
-                                        <td class="hide-on-med-and-down">{{ event.staffNumber }}</td>
-                                        <td style="text-transform: capitalize;">{{ event.type }}</td>
-                                        <td data-timestamp="{{ event.from }}">{{ event.from|toDate }}</td>
-                                        <td data-timestamp="{{ event.to }}">{{ event.to|toDate }}</td>
-                                        <td>
-                                            <a id="edit-event" class="waves-effect waves-light btn light-blue tooltipped" data-position="left" data-tooltip="Manage Event"><i class="material-icons">build</i></a>
-                                        </td>
+                                        <td colspan="6" class="center"><em>No results found.</em></td>
                                     </tr>
-                                {% endfor %}
+                                {% endif %}
                             </tbody>
                         </table>
                         <a class="waves-effect waves-light btn light-blue hide-on-med-and-up" style="width: 100%; margin-top: 20px;">New Event</a>

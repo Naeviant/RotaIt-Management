@@ -17,24 +17,30 @@
                                 </tr>
                             </thead>
                             <tbody style="max-height: 700px; overflow: auto;">
-                                {% for request in requests %}
+                                {% if requests[0] %}
+                                    {% for request in requests %}
+                                        <tr>
+                                            <td>{{ request.fullName }}</td>
+                                            <td>{{ request.staffNumber }}</td>
+                                            <td data-timestamp={{ request.from }}>{{ request.from|toDate }}</td>
+                                            <td data-timestamp={{ request.to }}>{{ request.to|toDate }}</td>
+                                            <td>
+                                                {% if request.user_comment %}
+                                                    {{ request.user_comment }}
+                                                {% else %}
+                                                    <em>None</em>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="#modal-action" id="action" class="waves-effect waves-light btn light-blue tooltipped modal-trigger" data-position="left" data-tooltip="Approve/Reject"><i class="material-icons">build</i></a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
                                     <tr>
-                                        <td>{{ request.fullName }}</td>
-                                        <td>{{ request.staffNumber }}</td>
-                                        <td data-timestamp={{ request.from }}>{{ request.from|toDate }}</td>
-                                        <td data-timestamp={{ request.to }}>{{ request.to|toDate }}</td>
-                                        <td>
-                                            {% if request.user_comment %}
-                                                {{ request.user_comment }}
-                                            {% else %}
-                                                <em>None</em>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <a href="#modal-action" id="action" class="waves-effect waves-light btn light-blue tooltipped modal-trigger" data-position="left" data-tooltip="Approve/Reject"><i class="material-icons">build</i></a>
-                                        </td>
+                                        <td colspan="6" class="center"><em>No results found.</em></td>
                                     </tr>
-                                {% endfor %}
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
