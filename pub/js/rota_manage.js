@@ -200,6 +200,38 @@ $(document).delegate("#rota input", "change", function() {
     colour();
 });
 
+$("#verify").click(function() {
+    $.post("/rota/verify/", {
+        weekNumber: $("#header").data("week"),
+        year: $("#header").data("year"),
+        shifts: build("verify")
+    }, function(res) {
+        if (res.status === 200) {
+            $("#errors").html("");
+            $("#critical").html(res.errors.critical.length);
+            $("#warning").html(res.errors.warning.length);
+            $("#concern").html(res.errors.concern.length);
+            $("#information").html(res.errors.information.length);
+            for (var error of res.errors.critical) {
+                $("#errors").append("<tr><td class=\"red-text text-darken-4\"><i class=\"material-icons\">cancel</i></td><td class=\"red-text text-darken-4\">Critical Error</td><td class=\"red-text text-darken-4\">" + error +  "</td></tr>")
+            }
+            for (var error of res.errors.warning) {
+                $("#errors").append("<tr><td class=\"orange-text text-darken-4\"><i class=\"material-icons\">warning</i></td><td class=\"orange-text text-darken-4\">Warning</td><td class=\"orange-text text-darken-4\">" + error +  "</td></tr>")
+            }
+            for (var error of res.errors.concern) {
+                $("#errors").append("<tr><td class=\"lime-text text-darken-4\"><i class=\"material-icons\">priority_high</i></td><td class=\"lime-text text-darken-4\">Concern</td><td class=\"lime-text text-darken-4\">" + error +  "</td></tr>")
+            }
+            for (var error of res.errors.information) {
+                $("#errors").append("<tr><td class=\"blue-text text-darken-4\"><i class=\"material-icons\" style=\"width: 25px;\">information</i></td><td class=\"blue-text text-darken-4\">Information</td><td class=\"blue-text text-darken-4\">" + error +  "</td></tr>")
+            }
+            $("#modal-errors").modal("open");
+        }
+        else {
+
+        }
+    });
+});
+
 $("#save").click(function() {
     $.post("/rota/save/", {
         weekNumber: $("#header").data("week"),

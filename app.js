@@ -693,6 +693,211 @@ app.post("/password/", function(req, res) {
     }
 });
 
+// Accept Verify Rota Requests
+app.post("/rota/verify/", function(req, res) {
+    if (req.session.loggedin) {
+        if (req.body.weekNumber && req.body.year && req.body.shifts) {
+            req.db.collection("users").findOne({
+                staffNumber: req.session.loggedin
+            }, function(err, resp) {
+                if (resp.manager === true) {
+                    req.body.weekNumber = parseInt(req.body.weekNumber);
+                    req.body.year = parseInt(req.body.year);
+                    if (!isNaN(req.body.weekNumber) && !isNaN(req.body.year)) {
+                        req.db.collection("users").find({
+                            team: resp.team
+                        }, function(err, resp) {
+                            resp.toArray().then(function(team) {
+                                req.db.collection("weeks").findOne({
+                                    weekNumber: req.body.weekNumber,
+                                    year: req.body.year
+                                }, function(err, week) {
+                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime(),
+                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime();
+                                    req.db.collection("events").find({
+                                        $or: [
+                                            { $and: [
+                                                    {
+                                                        from: {
+                                                            $lte: start
+                                                        }
+                                                    },
+                                                    {
+                                                        to: {
+                                                            $gte: start
+                                                        }
+                                                    }
+                                                ] 
+                                            },
+                                            {
+                                                $and: [
+                                                    {
+                                                        from: {
+                                                            $gte: start
+                                                        }
+                                                    },
+                                                    {
+                                                        from: {
+                                                            $lte: end
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }, function(err, resp) {
+                                        resp.toArray().then(function(events) {
+                                            var errors = {
+                                                critical: [],
+                                                warning: [],
+                                                concern: [],
+                                                information: []
+                                            },
+                                                days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+                                            for (var shift of req.body.shifts) {
+                                                var index = team.map(function(x) { return x.staffNumber }).indexOf(shift.staffNumber),
+                                                    s = new Date(shift.start),
+                                                    e = new Date(shift.end),
+                                                    length = ((e.getTime() - s.getTime()) / 3600000) - (parseInt(shift.breaks) / 60),
+                                                    date = ("0" + s.getDate()).slice(-2) + "/" + ("0" + (s.getMonth() + 1)).slice(-2) + "/" + s.getFullYear();
+                                                if (!team[index].assigned) {
+                                                    team[index].assigned = 0;
+                                                }
+                                                team[index].assigned += length;
+                                                if ((length >= 6 && shift.breaks < 30) || (length >= 8 && shift.breaks < 60)) {
+                                                    errors.warning.push("Insufficient breaks assigned to " + team[index].firstName + " " + team[index].lastName +  " on " + date + ".");
+                                                }
+                                                if ((s.getUTCHours() < 6 || (e.getUTCHours() > 21 && e.getUTCMinutes() > 0)) && (Date.now() - new Date(team[index].dob).getTime() < 568025136000)) {
+                                                    errors.critical.push("Illegal shift assigned to " + team[index].firstName + " " + team[index].lastName +  " on " + date + ".");
+                                                }
+                                                if ((s.getUTCDay() > 0 && s.getUTCHours() < 12 && team[index].availability[days[s.getUTCDay()]].morning === false) || (s.getUTCDay() === 0 && s.getUTCHours() < 13 && team[index].availability.sun.morning === false) || (s.getUTCDay() > 0 && s.getUTCHours() < 17 && s.getUTCHours() > 11 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() > 0 && e.getUTCHours() < 17 && e.getUTCHours() > 12 && e.getUTCMinutes() > 0 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() === 0 && e.getUTCHours() > 12 && team[index].availability.sun.afternoon === false) || (s.getUTCDay() > 0 && s.getUTCDay() < 6 && e.getUTCHours() > 16 && e.getUTCMinutes() > 0 && team[index].availability[days[s.getUTCDay()]].evening === false) || (s.getUTCDay() === 6 && e.getUTCHours() > 15 && team[index].availability[days[s.getUTCDay()]].evening === false)) {
+                                                    errors.warning.push("Availability matrix ignored for " + team[index].firstName + " " + team[index].lastName +  " on " + date + ".");
+                                                }
+                                            }
+                                            for (var user of team) {
+                                                if (!user.assigned) {
+                                                    user.assigned = 0;
+                                                }
+                                                if (user.assigned > user.hours + user.maxOvertime) {
+                                                    errors.warning.push("Too much overtime assigned to " + user.firstName + " " + user.lastName +  ".");
+                                                }
+                                                if (user.assigned > user.hours) {
+                                                    errors.information.push((user.assigned - user.hours) + " hours of overtime assigned to " + user.firstName + " " + user.lastName +  ".");
+                                                }
+                                                if (user.assigned < user.hours) {
+                                                    var done = false;
+                                                    for (var event of events) {
+                                                        if ((event.type == "suspension" || event.type == "maternity" || event.type == "paternity" || event.type == "sickness" || event.type == "elsewhere") && event.staffNumber == user.staffNumber) {
+                                                            done = true;
+                                                            break;
+                                                        }
+                                                        if (event.type == "leave" && event.status == "approved" && event.staffNumber == user.staffNumber) {
+                                                            done = true;
+                                                            errors.information.push((user.hours - user.assigned) + " hours of annual leave used by " + user.firstName + " " + user.lastName +  ".");
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (!done) {
+                                                        errors.warning.push((user.hours - user.assigned) + " too few hours assigned to " + user.firstName + " " + user.lastName +  ".");
+                                                    }       
+                                                }
+                                            }
+                                            for (var day of days) {
+                                                if (week[day].closed === false) {
+                                                    var i = week[day].openCustomers.getTime(),
+                                                        j = 0,
+                                                        fulldays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                                                    while (i < week[day].closedCustomers.getTime()) {
+                                                        var d = new Date(i),
+                                                            time = ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + (d.getUTCMinutes())).slice(-2)
+                                                            n = 0;
+                                                        for (var shift of req.body.shifts) {
+                                                            if (new Date(shift.start).getUTCDay() === days.indexOf(day)) {
+                                                                var s = new Date(1970, 0, 1, new Date(shift.start).getUTCHours(), new Date(shift.start).getUTCMinutes()),
+                                                                    e = new Date(1970, 0, 1, new Date(shift.end).getUTCHours(), new Date(shift.end).getUTCMinutes());                    
+                                                                if (s.getTime() <= d.getTime() && e.getTime() > d.getTime()) {
+                                                                    n += 1;
+                                                                }
+                                                            }
+                                                        }
+                                                        if (n === 0) {
+                                                            errors.critical.push("No staff available on " + fulldays[days.indexOf(day)] + " at " + time + ".");
+                                                        }
+                                                        else if (n === 1) {
+                                                            errors.warning.push("Only one member of staff available on " + fulldays[days.indexOf(day)] + " at " + time + ".");
+                                                        }
+                                                        else if (n === 2) {
+                                                            if (j >= 10800000) {
+                                                                errors.concern.push("Only two members of staff available on " + fulldays[days.indexOf(day)] + " at " + time + " for over three hours.");
+                                                            }
+                                                            j += 900000;
+                                                        }
+                                                        else {
+                                                            j = 0;
+                                                        }
+                                                        i += 900000;
+                                                    }
+                                                    var beforeOpen = week[day].openCustomers.getTime() - 900000,
+                                                        afterClose = week[day].closedCustomers.getTime() + 900000,
+                                                        before = false,
+                                                        after = false;
+                                                    for (var shift of req.body.shifts) {
+                                                        if (new Date(shift.start).getUTCDay() === days.indexOf(day)) {
+                                                            if (new Date(1970, 0, 1, new Date(shift.start).getUTCHours(), new Date(shift.start).getUTCMinutes()).getTime() <= beforeOpen) {
+                                                                before = true;
+                                                            }
+                                                            if (new Date(1970, 0, 1, new Date(shift.end).getUTCHours(), new Date(shift.end).getUTCMinutes()).getTime() >= afterClose) {
+                                                                after = true;
+                                                            }
+                                                        }
+                                                    }
+                                                    if (before === false) {
+                                                        errors.concern.push("No staff available before opening hours on " + fulldays[days.indexOf(day)] +  ".");
+                                                    }
+                                                    if (after === false) {
+                                                        errors.concern.push("No staff available after opening hours on " + fulldays[days.indexOf(day)] +  ".");
+                                                    }
+                                                }
+                                            }
+                                            res.send({
+                                                status: 200,
+                                                errors: errors
+                                            })
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    }
+                    else {
+                        res.send({
+                            status: 400,
+                            message: "Invalid Parameters Sent"
+                        });
+                    }
+                }
+                else {
+                    res.send({
+                        status: 401,
+                        message: "Insufficient Privileges"
+                    });
+                }
+            });
+        }
+        else {
+            res.send({
+                status: 400,
+                message: "Invalid Parameters Sent"
+            });
+        }
+    }
+    else {
+        res.send({
+            status: 403,
+            message: "Authentication Failed"
+        });
+    }
+});
+
 // Accept Save Rota Requests
 app.post("/rota/save/", function(req, res) {
     if (req.session.loggedin) {
