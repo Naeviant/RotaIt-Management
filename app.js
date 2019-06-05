@@ -138,90 +138,185 @@ app.get("/partial/rota_manage/", function(req, res) {
                 req.db.collection("users").findOne({
                     staffNumber: req.session.loggedin
                 }, function(err, resp) {
-                    req.db.collection("users").find({
-                        team: resp.team
-                    }, {
-                        sort: [["firstName", "ascending"]]
-                    }, function(err, resp) {
-                        resp.toArray().then(function(team) {
-                            req.db.collection("weeks").findOne({
-                                weekNumber: req.query.week,
-                                year: req.query.year
-                            }, function(err, week) {
-                                if (!week) {
-                                    var newWeek = true;
-                                    week = {
-                                        weekNumber: req.query.week,
-                                        year: req.query.year,
-                                        published: false,
-                                        sun: {
-                                            closed: false,
-                                            bankHoliday: false,
-                                            openCustomers: new Date(36000000),
-                                            closedCustomers: new Date(57600000),
-                                            openStaff: new Date(25200000),
-                                            closedStaff: new Date(68400000)
-                                        },
-                                        mon: {
-                                            closed: false,
-                                            bankHoliday: false,
-                                            openCustomers: new Date(25200000),
-                                            closedCustomers: new Date(75600000),
-                                            openStaff: new Date(21600000),
-                                            closedStaff: new Date(82800000)
-                                        },
-                                        tue: {
-                                            closed: false,
-                                            bankHoliday: false,
-                                            openCustomers: new Date(25200000),
-                                            closedCustomers: new Date(75600000),
-                                            openStaff: new Date(21600000),
-                                            closedStaff: new Date(82800000)
-                                        },
-                                        wed: {
-                                            closed: false,
-                                            bankHoliday: false,
-                                            openCustomers: new Date(25200000),
-                                            closedCustomers: new Date(75600000),
-                                            openStaff: new Date(21600000),
-                                            closedStaff: new Date(82800000)
-                                        },
-                                        thu: {
-                                            closed: false,
-                                            bankHoliday: false,
-                                            openCustomers: new Date(25200000),
-                                            closedCustomers: new Date(75600000),
-                                            openStaff: new Date(21600000),
-                                            closedStaff: new Date(82800000)
-                                        },
-                                        fri: {
-                                            closed: false,
-                                            bankHoliday: false,
-                                            openCustomers: new Date(25200000),
-                                            closedCustomers: new Date(75600000),
-                                            openStaff: new Date(21600000),
-                                            closedStaff: new Date(82800000)
-                                        },
-                                        sat: {
-                                            closed: false,
-                                            bankHoliday: false,
-                                            openCustomers: new Date(25200000),
-                                            closedCustomers: new Date(72000000),
-                                            openStaff: new Date(21600000),
-                                            closedStaff: new Date(72900000)
+                    var limit = new Date(1547942400000 + (parseInt((req.query.week + 1) * 604800000))).getTime();
+                    if (limit < Date.now()) {
+                        req.db.collection("weeks").findOne({
+                            weekNumber: req.query.week,
+                            year: req.query.year
+                        }, function(err, week) {
+                            if (week && week.published === true) {
+                                var users = [];
+                                req.db.collection("shifts").find({
+                                    weekNumber: req.query.week,
+                                    year: req.query.year
+                                }, function(err, resp) {
+                                    resp.toArray().then(function(shifts) {
+                                        var start = new Date(1547942400000 + (parseInt(req.query.week * 604800000))).getTime(),
+                                            end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime();
+                                        req.db.collection("events").find({
+                                            $or: [
+                                                { $and: [
+                                                        {
+                                                            from: {
+                                                                $lte: start
+                                                            }
+                                                        },
+                                                        {
+                                                            to: {
+                                                                $gte: start
+                                                            }
+                                                        }
+                                                    ] 
+                                                },
+                                                {
+                                                    $and: [
+                                                        {
+                                                            from: {
+                                                                $gte: start
+                                                            }
+                                                        },
+                                                        {
+                                                            from: {
+                                                                $lte: end
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }, function(err, resp) {
+                                            resp.toArray().then(function(events) {
+                                                for (var shift of shifts) {
+                                                    if (users.map(function(x) { return x.staffNumber }).indexOf(shift.staffNumber) === -1) {
+                                                        users.push({
+                                                            firstName: shift.fullName.split(" ")[0],
+                                                            lastName: shift.fullName.split(" ")[1],
+                                                            staffNumber: shift.staffNumber
+                                                        });
+                                                    }
+                                                }
+                                                for (var event of events) {
+                                                    if (users.map(function(x) { return x.staffNumber }).indexOf(event.staffNumber) === -1) {
+                                                        users.push({
+                                                            firstName: event.fullName.split(" ")[0],
+                                                            lastName: event.fullName.split(" ")[1],
+                                                            staffNumber: event.staffNumber
+                                                        });
+                                                    }
+                                                }
+                                                users.sort(function(a, b) {
+                                                    if (a.firstName < b.firstName) {
+                                                        return -1;
+                                                    }
+                                                    if (a.firstName > b.firstName) {
+                                                        return 1;
+                                                    }
+                                                    return 0;
+                                                });
+                                                res.render("partials/rota_manage", {
+                                                    team: users,
+                                                    week: week,
+                                                    past: true
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            }
+                            else {
+                                res.render("partials/error", {
+                                    code: 400,
+                                    message: "No rota was published for this week."
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        req.db.collection("users").find({
+                            team: resp.team
+                        }, {
+                            sort: [["firstName", "ascending"]]
+                        }, function(err, resp) {
+                            resp.toArray().then(function(team) {
+                                req.db.collection("weeks").findOne({
+                                    weekNumber: req.query.week,
+                                    year: req.query.year
+                                }, function(err, week) {
+                                    if (!week) {
+                                        var newWeek = true;
+                                        week = {
+                                            weekNumber: req.query.week,
+                                            year: req.query.year,
+                                            published: false,
+                                            sun: {
+                                                closed: false,
+                                                bankHoliday: false,
+                                                openCustomers: new Date(36000000),
+                                                closedCustomers: new Date(57600000),
+                                                openStaff: new Date(25200000),
+                                                closedStaff: new Date(68400000)
+                                            },
+                                            mon: {
+                                                closed: false,
+                                                bankHoliday: false,
+                                                openCustomers: new Date(25200000),
+                                                closedCustomers: new Date(75600000),
+                                                openStaff: new Date(21600000),
+                                                closedStaff: new Date(82800000)
+                                            },
+                                            tue: {
+                                                closed: false,
+                                                bankHoliday: false,
+                                                openCustomers: new Date(25200000),
+                                                closedCustomers: new Date(75600000),
+                                                openStaff: new Date(21600000),
+                                                closedStaff: new Date(82800000)
+                                            },
+                                            wed: {
+                                                closed: false,
+                                                bankHoliday: false,
+                                                openCustomers: new Date(25200000),
+                                                closedCustomers: new Date(75600000),
+                                                openStaff: new Date(21600000),
+                                                closedStaff: new Date(82800000)
+                                            },
+                                            thu: {
+                                                closed: false,
+                                                bankHoliday: false,
+                                                openCustomers: new Date(25200000),
+                                                closedCustomers: new Date(75600000),
+                                                openStaff: new Date(21600000),
+                                                closedStaff: new Date(82800000)
+                                            },
+                                            fri: {
+                                                closed: false,
+                                                bankHoliday: false,
+                                                openCustomers: new Date(25200000),
+                                                closedCustomers: new Date(75600000),
+                                                openStaff: new Date(21600000),
+                                                closedStaff: new Date(82800000)
+                                            },
+                                            sat: {
+                                                closed: false,
+                                                bankHoliday: false,
+                                                openCustomers: new Date(25200000),
+                                                closedCustomers: new Date(72000000),
+                                                openStaff: new Date(21600000),
+                                                closedStaff: new Date(72900000)
+                                            }
                                         }
                                     }
-                                }
-                                res.render("partials/rota_manage", {
-                                    team: team,
-                                    week: week
+                                    res.render("partials/rota_manage", {
+                                        team: team,
+                                        week: week,
+                                        past: false
+                                    });
+                                    if (newWeek) {
+                                        req.db.collection("weeks").insertOne(week);
+                                    }
                                 });
-                                if (newWeek) {
-                                    req.db.collection("weeks").insertOne(week);
-                                }
                             });
                         });
-                    });
+                    }
                 });
             }
             else {
