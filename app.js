@@ -63,11 +63,25 @@ app.get("/partial/staff/", function(req, res) {
         req.db.collection("users").findOne({
             staffNumber: req.session.loggedin
         }, function(err, resp) {
+            if (err) {
+                res.render("partials/error", {
+                    code: 500,
+                    message: "The system could not contact the server. Please try again later."
+                });
+                return;
+            } 
             req.db.collection("users").find({
                 team: resp.team
             }, {
                 sort: [["firstName", "ascending"]]
             }, function(err, resp) {
+                if (err) {
+                    res.render("partials/error", {
+                        code: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 resp.toArray().then(function(team) {
                     res.render("partials/staff", {
                         team: team
@@ -91,6 +105,13 @@ app.get("/partial/staff_manage/", function(req, res) {
             req.db.collection("users").findOne({
                 staffNumber: req.query.staffNumber
             }, function(err, resp) {
+                if (err) {
+                    res.render("partials/error", {
+                        code: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 if (resp) {
                     resp.dob = resp.dob.getFullYear() + "-" + ("0" + (resp.dob.getMonth() + 1)).slice(-2) + "-" + ("0" + resp.dob.getDate()).slice(-2);
                     res.render("partials/staff_manage", { edit: true, user: resp });
@@ -138,18 +159,39 @@ app.get("/partial/rota_manage/", function(req, res) {
                 req.db.collection("users").findOne({
                     staffNumber: req.session.loggedin
                 }, function(err, resp) {
+                    if (err) {
+                        res.render("partials/error", {
+                            code: 500,
+                            message: "The system could not contact the server. Please try again later."
+                        });
+                        return;
+                    } 
                     var limit = new Date(1547942400000 + (parseInt((req.query.week + 1) * 604800000))).getTime();
                     if (limit < Date.now()) {
                         req.db.collection("weeks").findOne({
                             weekNumber: req.query.week,
                             year: req.query.year
                         }, function(err, week) {
+                            if (err) {
+                                res.render("partials/error", {
+                                    code: 500,
+                                    message: "The system could not contact the server. Please try again later."
+                                });
+                                return;
+                            } 
                             if (week && week.published === true) {
                                 var users = [];
                                 req.db.collection("shifts").find({
                                     weekNumber: req.query.week,
                                     year: req.query.year
                                 }, function(err, resp) {
+                                    if (err) {
+                                        res.render("partials/error", {
+                                            code: 500,
+                                            message: "The system could not contact the server. Please try again later."
+                                        });
+                                        return;
+                                    } 
                                     resp.toArray().then(function(shifts) {
                                         var start = new Date(1547942400000 + (parseInt(req.query.week * 604800000))).getTime(),
                                             end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime();
@@ -184,6 +226,13 @@ app.get("/partial/rota_manage/", function(req, res) {
                                                 }
                                             ]
                                         }, function(err, resp) {
+                                            if (err) {
+                                                res.render("partials/error", {
+                                                    code: 500,
+                                                    message: "The system could not contact the server. Please try again later."
+                                                });
+                                                return;
+                                            } 
                                             resp.toArray().then(function(events) {
                                                 for (var shift of shifts) {
                                                     if (users.map(function(x) { return x.staffNumber }).indexOf(shift.staffNumber) === -1) {
@@ -236,11 +285,25 @@ app.get("/partial/rota_manage/", function(req, res) {
                         }, {
                             sort: [["firstName", "ascending"]]
                         }, function(err, resp) {
+                            if (err) {
+                                res.render("partials/error", {
+                                    code: 500,
+                                    message: "The system could not contact the server. Please try again later."
+                                });
+                                return;
+                            } 
                             resp.toArray().then(function(team) {
                                 req.db.collection("weeks").findOne({
                                     weekNumber: req.query.week,
                                     year: req.query.year
                                 }, function(err, week) {
+                                    if (err) {
+                                        res.render("partials/error", {
+                                            code: 500,
+                                            message: "The system could not contact the server. Please try again later."
+                                        });
+                                        return;
+                                    } 
                                     if (!week) {
                                         var newWeek = true;
                                         week = {
@@ -352,13 +415,17 @@ app.get("/partial/requests/", function(req, res) {
         req.db.collection("events").find({
                 type: "leave",
                 status: "pending",
-                to: {
-                    $gt: d.getTime()
-                },
                 team: req.session.team
             }, {
                 sort: [["from", "ascending"]]
             }, function(err, resp) {
+                if (err) {
+                    res.render("partials/error", {
+                        code: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 resp.toArray().then(function(requests) {
                     res.render("partials/requests", {
                         requests: requests
@@ -395,6 +462,13 @@ app.get("/partial/events/", function(req, res) {
             }, {
                 sort: [["from", "ascending"]]
             }, function(err, resp) {
+                if (err) {
+                    res.render("partials/error", {
+                        code: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 resp.toArray().then(function(events) {
                     res.render("partials/events", {
                         events: events
@@ -416,11 +490,25 @@ app.get("/partial/events_manage/", function(req, res) {
         req.db.collection("users").findOne({
             staffNumber: req.session.loggedin
         }, function(err, resp) {
+            if (err) {
+                res.render("partials/error", {
+                    code: 500,
+                    message: "The system could not contact the server. Please try again later."
+                });
+                return;
+            } 
             req.db.collection("users").find({
                 team: resp.team
             }, {
                 sort: [["firstName", "ascending"]]
             }, function(err, resp) {
+                if (err) {
+                    res.render("partials/error", {
+                        code: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 resp.toArray().then(function(team) {
                     if (req.query && req.query.staffNumber && req.query.type && req.query.from && !isNaN(parseInt(req.query.from)) && req.query.to && !isNaN(parseInt(req.query.to))) {
                         req.query.from = parseInt(req.query.from);
@@ -431,6 +519,13 @@ app.get("/partial/events_manage/", function(req, res) {
                             from: req.query.from,
                             to: req.query.to
                         }, function(err, resp) {
+                            if (err) {
+                                res.render("partials/error", {
+                                    code: 500,
+                                    message: "The system could not contact the server. Please try again later."
+                                });
+                                return;
+                            } 
                             resp.from_html = new Date(resp.from);
                             resp.to_html = new Date(resp.to);
                             resp.from_html = resp.from_html.getFullYear() + "-" + ("0" + (resp.from_html.getMonth() + 1)).slice(-2) + "-" + ("0" + resp.from_html.getDate()).slice(-2);
@@ -466,6 +561,13 @@ if (req.session.loggedin) {
             req.db.collection("users").findOne({
                 staffNumber: req.session.loggedin
             }, function(err, resp) {
+                if (err) {
+                    res.send({
+                        status: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 if (resp.manager === true) {
                     req.query.week = parseInt(req.query.week);
                     req.query.year = parseInt(req.query.year);
@@ -473,6 +575,13 @@ if (req.session.loggedin) {
                         weekNumber: req.query.week,
                         year: req.query.year
                     }, function(err, week) {
+                        if (err) {
+                            res.send({
+                                status: 500,
+                                message: "The system could not contact the server. Please try again later."
+                            });
+                            return;
+                        } 
                         res.send({
                             status: 200,
                             week: week
@@ -509,6 +618,13 @@ app.get("/rota/", function(req, res) {
             req.db.collection("users").findOne({
                 staffNumber: req.session.loggedin
             }, function(err, resp) {
+                if (err) {
+                    res.send({
+                        status: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 if (resp.manager === true) {
                     req.query.week = parseInt(req.query.week);
                     req.query.year = parseInt(req.query.year);
@@ -516,6 +632,13 @@ app.get("/rota/", function(req, res) {
                         weekNumber: req.query.week,
                         year: req.query.year
                     }, function(err, shifts) {
+                        if (err) {
+                            res.send({
+                                status: 500,
+                                message: "The system could not contact the server. Please try again later."
+                            });
+                            return;
+                        } 
                         shifts.toArray().then(function(rota) {
                             res.send({
                                 status: 200,
@@ -554,6 +677,13 @@ app.get("/events/", function(req, res) {
             req.db.collection("users").findOne({
                 staffNumber: req.session.loggedin
             }, function(err, resp) {
+                if (err) {
+                    res.send({
+                        status: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 if (resp.manager === true) {
                     var start = new Date(1547942400000 + (parseInt(req.query.week * 604800000))).getTime(),
                         end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime();
@@ -588,6 +718,13 @@ app.get("/events/", function(req, res) {
                             }
                         ]
                     }, function(err, resp) {
+                        if (err) {
+                            res.send({
+                                status: 500,
+                                message: "The system could not contact the server. Please try again later."
+                            });
+                            return;
+                        } 
                         resp.toArray().then(function(events) {
                             res.send({
                                 status: 200,
@@ -635,35 +772,34 @@ app.post("/login/", function(req, res) {
         staffNumber: req.body.staffNumber,
         password: req.body.password
     }, function(err, resp) {
-        if (!err) {
-            if (resp) {
-                if (resp.manager === true) {
-                    req.session.loggedin = resp.staffNumber;
-                    req.session.team = resp.team;
-                    req.session.name = resp.firstName + " " + resp.lastName;
-                    res.send({
-                        status: 200,
-                        message: "Login Successful"
-                    });
-                }
-                else {
-                    res.send({
-                        status: 401,
-                        message: "Insufficient Privileges"
-                    });
-                }
+        if (err) {
+            res.send({
+                status: 500,
+                message: "The system could not contact the server. Please try again later."
+            });
+            return;
+        } 
+        if (resp) {
+            if (resp.manager === true) {
+                req.session.loggedin = resp.staffNumber;
+                req.session.team = resp.team;
+                req.session.name = resp.firstName + " " + resp.lastName;
+                res.send({
+                    status: 200,
+                    message: "Login Successful"
+                });
             }
             else {
                 res.send({
-                    status: 404,
-                    message: "User Account Not Found"
+                    status: 401,
+                    message: "Insufficient Privileges"
                 });
             }
         }
         else {
             res.send({
-                status: 500,
-                message: "Database Connection Failure"
+                status: 404,
+                message: "User Account Not Found"
             });
         }
     });
@@ -675,9 +811,16 @@ app.post("/staff/", function(req, res) {
         req.db.collection("users").findOne({
             staffNumber: req.session.loggedin
         }, function(err, resp) {
+            if (err) {
+                res.send({
+                    status: 500,
+                    message: "The system could not contact the server. Please try again later."
+                });
+                return;
+            } 
             if (resp.manager === true) {
                 req.body.newUser = (req.body.newUser == "true");
-                req.body.dob = new Date(req.body.dob);
+                req.body.dob = new Date(req.body.dob + "Z");
                 req.body.hours = parseFloat(req.body.hours);
                 req.body.maxOvertime = parseFloat(req.body.maxOvertime);
                 req.body.pay = parseFloat(req.body.pay);
@@ -698,6 +841,13 @@ app.post("/staff/", function(req, res) {
                             req.db.collection("users").updateOne({
                                 staffNumber: req.body.staffNumber
                             }, req.body, function(err, done) {
+                                if (err) {
+                                    res.send({
+                                        status: 500,
+                                        message: "The system could not contact the server. Please try again later."
+                                    });
+                                    return;
+                                } 
                                 res.send({
                                     status: 200,
                                     message: "User Updated Successfully"
@@ -713,6 +863,13 @@ app.post("/staff/", function(req, res) {
                         else {
                             delete req.body.newUser;
                             req.db.collection("users").insertOne(req.body, function(err, done) {
+                                if (err) {
+                                    res.send({
+                                        status: 500,
+                                        message: "The system could not contact the server. Please try again later."
+                                    });
+                                    return;
+                                } 
                                 res.send({
                                     status: 200,
                                     message: "User Added Successfully"
@@ -751,6 +908,13 @@ app.post("/password/", function(req, res) {
             req.db.collection("users").findOne({
                 staffNumber: req.session.loggedin
             }, function(err, resp) {
+                if (err) {
+                    res.send({
+                        status: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 if (resp.manager === true) {
                     req.db.collection("users").updateOne({
                         staffNumber: req.body.staffNumber
@@ -759,6 +923,13 @@ app.post("/password/", function(req, res) {
                             password: req.body.password
                         }
                     }, function(err, done) {
+                        if (err) {
+                            res.send({
+                                status: 500,
+                                message: "The system could not contact the server. Please try again later."
+                            });
+                            return;
+                        } 
                         res.send({
                             status: 200,
                             message: "Password Updated Successfully"
@@ -795,6 +966,13 @@ app.post("/rota/verify/", function(req, res) {
             req.db.collection("users").findOne({
                 staffNumber: req.session.loggedin
             }, function(err, resp) {
+                if (err) {
+                    res.send({
+                        status: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 if (resp.manager === true) {
                     req.body.weekNumber = parseInt(req.body.weekNumber);
                     req.body.year = parseInt(req.body.year);
@@ -802,11 +980,25 @@ app.post("/rota/verify/", function(req, res) {
                         req.db.collection("users").find({
                             team: resp.team
                         }, function(err, resp) {
+                            if (err) {
+                                res.send({
+                                    status: 500,
+                                    message: "The system could not contact the server. Please try again later."
+                                });
+                                return;
+                            } 
                             resp.toArray().then(function(team) {
                                 req.db.collection("weeks").findOne({
                                     weekNumber: req.body.weekNumber,
                                     year: req.body.year
                                 }, function(err, week) {
+                                    if (err) {
+                                        res.send({
+                                            status: 500,
+                                            message: "The system could not contact the server. Please try again later."
+                                        });
+                                        return;
+                                    } 
                                     var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime(),
                                         end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime();
                                     req.db.collection("events").find({
@@ -840,6 +1032,13 @@ app.post("/rota/verify/", function(req, res) {
                                             }
                                         ]
                                     }, function(err, resp) {
+                                        if (err) {
+                                            res.send({
+                                                status: 500,
+                                                message: "The system could not contact the server. Please try again later."
+                                            });
+                                            return;
+                                        } 
                                         resp.toArray().then(function(events) {
                                             var errors = {
                                                 critical: [],
@@ -1000,6 +1199,13 @@ app.post("/rota/save/", function(req, res) {
             req.db.collection("users").findOne({
                 staffNumber: req.session.loggedin
             }, function(err, resp) {
+                if (err) {
+                    res.send({
+                        status: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 if (resp.manager === true) {
                     req.body.weekNumber = parseInt(req.body.weekNumber);
                     req.body.year = parseInt(req.body.year);
@@ -1024,6 +1230,13 @@ app.post("/rota/save/", function(req, res) {
                             year: req.body.year
                         }, function(err, done) {
                             req.db.collection("shifts").insertMany(req.body.shifts, function(err, done) {
+                                if (err) {
+                                    res.send({
+                                        status: 500,
+                                        message: "The system could not contact the server. Please try again later."
+                                    });
+                                    return;
+                                } 
                                 if (req.body.publish == "true") {
                                     req.db.collection("weeks").updateOne({
                                         weekNumber: req.body.weekNumber,
@@ -1078,6 +1291,13 @@ app.post("/week/", function(req, res) {
             req.db.collection("users").findOne({
                 staffNumber: req.session.loggedin
             }, function(err, resp) {
+                if (err) {
+                    res.send({
+                        status: 500,
+                        message: "The system could not contact the server. Please try again later."
+                    });
+                    return;
+                } 
                 if (resp.manager === true) {
                     req.body.weekNumber = parseInt(req.body.weekNumber);
                     req.body.year = parseInt(req.body.year);
@@ -1109,6 +1329,13 @@ app.post("/week/", function(req, res) {
                             }, {
                                 $set: req.body
                             }, function(err, done) {
+                                if (err) {
+                                    res.send({
+                                        status: 500,
+                                        message: "The system could not contact the server. Please try again later."
+                                    });
+                                    return;
+                                } 
                                 res.send({
                                     status: 200,
                                     message: "Week Settings Saved Successfully"
@@ -1158,6 +1385,13 @@ app.post("/requests/", function(req, res) {
         req.db.collection("users").findOne({
             staffNumber: req.session.loggedin
         }, function(err, resp) {
+            if (err) {
+                res.send({
+                    status: 500,
+                    message: "The system could not contact the server. Please try again later."
+                });
+                return;
+            } 
             if (resp.manager === true) {
                 req.body.from = parseInt(req.body.from);
                 req.body.to = parseInt(req.body.to);
@@ -1172,6 +1406,13 @@ app.post("/requests/", function(req, res) {
                             status: req.body.action
                         }
                     }, function(err, done) {
+                        if (err) {
+                            res.send({
+                                status: 500,
+                                message: "The system could not contact the server. Please try again later."
+                            });
+                            return;
+                        } 
                         res.send({
                             status: 200,
                             message: "Request Updated Successfully"
@@ -1207,6 +1448,13 @@ app.post("/event/", function(req, res) {
         req.db.collection("users").findOne({
             staffNumber: req.session.loggedin
         }, function(err, resp) {
+            if (err) {
+                res.send({
+                    status: 500,
+                    message: "The system could not contact the server. Please try again later."
+                });
+                return;
+            } 
             if (resp.manager === true) {
                 req.body.from = new Date(req.body.from).getTime();
                 req.body.to = new Date(req.body.to).getTime();
@@ -1224,6 +1472,13 @@ app.post("/event/", function(req, res) {
                                 to: req.body.to
                             }
                         }, function(err, done) {
+                            if (err) {
+                                res.send({
+                                    status: 500,
+                                    message: "The system could not contact the server. Please try again later."
+                                });
+                                return;
+                            } 
                             res.send({
                                 status: 200,
                                 message: "Event Updated Successfully"
@@ -1233,6 +1488,13 @@ app.post("/event/", function(req, res) {
                     else {
                         delete req.body.initial;
                         req.db.collection("events").insertOne(req.body, function(err, done) {
+                            if (err) {
+                                res.send({
+                                    status: 500,
+                                    message: "The system could not contact the server. Please try again later."
+                                });
+                                return;
+                            } 
                             res.send({
                                 status: 200,
                                 message: "Event Added Successfully"
@@ -1275,10 +1537,24 @@ app.delete("/staff/", function(req, res) {
         req.db.collection("users").findOne({
             staffNumber: req.session.loggedin
         }, function(err, resp) {
+            if (err) {
+                res.send({
+                    status: 500,
+                    message: "The system could not contact the server. Please try again later."
+                });
+                return;
+            } 
             if (resp.manager === true) {
                 req.db.collection("users").deleteOne({
                     staffNumber: req.body.staffNumber
                 }, function(err, done) {
+                    if (err) {
+                        res.send({
+                            status: 500,
+                            message: "The system could not contact the server. Please try again later."
+                        });
+                        return;
+                    } 
                     res.send({
                         status: 200,
                         message: "User Deleted Successfully"
@@ -1307,6 +1583,13 @@ app.delete("/event/", function(req, res) {
         req.db.collection("users").findOne({
             staffNumber: req.session.loggedin
         }, function(err, resp) {
+            if (err) {
+                res.send({
+                    status: 500,
+                    message: "The system could not contact the server. Please try again later."
+                });
+                return;
+            } 
             if (resp.manager === true) {
                 if (req.body && req.body.staffNumber && req.body.type && req.body.from && !isNaN(parseInt(req.body.from)) && req.body.to && !isNaN(parseInt(req.body.to))) {req.body.from = parseInt(req.body.from);
                     req.body.to = parseInt(req.body.to);
@@ -1316,6 +1599,13 @@ app.delete("/event/", function(req, res) {
                         from: req.body.from,
                         to: req.body.to
                     }, function(err, done) {
+                        if (err) {
+                            res.send({
+                                status: 500,
+                                message: "The system could not contact the server. Please try again later."
+                            });
+                            return;
+                        } 
                         res.send({
                             status: 200,
                             message: "Event Deleted Successfully"

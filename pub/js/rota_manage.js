@@ -1,3 +1,11 @@
+$(document).off("ready");
+$("#verify").off("click");
+$("#save").off("click");
+$("#publish").off("click");
+$("#save-week").off("click");
+$(document).undelegate("#rota input", "change");
+$(document).off("keypress");
+
 function build(state) {
     var week = $("#header").data("week"),
         year = $("#header").data("year"),
@@ -169,33 +177,50 @@ $(document).ready(function() {
         week: $("#header").data("week"),
         year: $("#header").data("year")
     }, function(res) {
-        if (res.status === 200) {
-            $("#rota tbody tr").each(function(i) {
-                var staffNumber = $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(1)").html().split(" <br> ")[1],
-                    shifts = res.rota.filter(function(x) { return x.staffNumber == staffNumber });
+        switch (res.status) {
+            case 200:
+                $("#rota tbody tr").each(function(i) {
+                    var staffNumber = $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(1)").html().split(" <br> ")[1],
+                        shifts = res.rota.filter(function(x) { return x.staffNumber == staffNumber });
 
-                for (var j = 1; j <= 7; j++) {
-                    var lower = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[0]))).getTime();
-                    var higher = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[0]), 23, 59, 59)).getTime();
-                    for (var shift of shifts) {
-                        if (shift.start > lower && shift.end < higher) {
-                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + ((3 * j) - 1) + ") input").val(("0" + new Date(shift.start).getUTCHours()).slice(-2) + ":" + ("0" + new Date(shift.start).getUTCMinutes()).slice(-2));
-                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + ((3 * j)) + ") input").val(("0" + new Date(shift.end).getUTCHours()).slice(-2) + ":" + ("0" + new Date(shift.end).getUTCMinutes()).slice(-2));
-                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + ((3 * j) + 1) + ") input").val(shift.breaks);
+                    for (var j = 1; j <= 7; j++) {
+                        var lower = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[0]))).getTime();
+                        var higher = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[0]), 23, 59, 59)).getTime();
+                        for (var shift of shifts) {
+                            if (shift.start > lower && shift.end < higher) {
+                                $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + ((3 * j) - 1) + ") input").val(("0" + new Date(shift.start).getUTCHours()).slice(-2) + ":" + ("0" + new Date(shift.start).getUTCMinutes()).slice(-2));
+                                $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + ((3 * j)) + ") input").val(("0" + new Date(shift.end).getUTCHours()).slice(-2) + ":" + ("0" + new Date(shift.end).getUTCMinutes()).slice(-2));
+                                $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + ((3 * j) + 1) + ") input").val(shift.breaks);
+                            }
                         }
                     }
-                }
-            });
-            colour();
-            $("#loading").fadeOut("fast", function() {
-                $("#wrapper").fadeIn();
-                stopOverflow();
-            });
-        }
-        else {
-            M.toast({
-                html: "An unknown error occurred. The existing rota could not be fully loaded."
-            });
+                });
+                colour();
+                $("#loading").fadeOut("fast", function() {
+                    $("#wrapper").fadeIn();
+                    stopOverflow();
+                });
+                break;
+            case 400:
+                M.toast({
+                    html: "An unknown error occured. Please try again later."
+                });
+                break;
+            case 401:
+                M.toast({
+                    html: "You are not authorised to use this system."
+                });
+                break;
+            case 403:
+                M.toast({
+                    html: "Your session has expired. Please log in again to continue."
+                });
+                break;
+            case 500:
+                M.toast({
+                    html: "The system could not contact the server. Please try again later."
+                });
+                break;
         }
     });
 });
@@ -210,28 +235,47 @@ $("#verify").click(function() {
         year: $("#header").data("year"),
         shifts: build("verify")
     }, function(res) {
-        if (res.status === 200) {
-            $("#errors").html("");
-            $("#critical").html(res.errors.critical.length);
-            $("#warning").html(res.errors.warning.length);
-            $("#concern").html(res.errors.concern.length);
-            $("#information").html(res.errors.information.length);
-            for (var error of res.errors.critical) {
-                $("#errors").append("<tr><td class=\"red-text text-darken-4\"><i class=\"material-icons\">cancel</i></td><td class=\"red-text text-darken-4\">Critical Error</td><td class=\"red-text text-darken-4\">" + error +  "</td></tr>")
-            }
-            for (var error of res.errors.warning) {
-                $("#errors").append("<tr><td class=\"orange-text text-darken-4\"><i class=\"material-icons\">warning</i></td><td class=\"orange-text text-darken-4\">Warning</td><td class=\"orange-text text-darken-4\">" + error +  "</td></tr>")
-            }
-            for (var error of res.errors.concern) {
-                $("#errors").append("<tr><td class=\"lime-text text-darken-4\"><i class=\"material-icons\">priority_high</i></td><td class=\"lime-text text-darken-4\">Concern</td><td class=\"lime-text text-darken-4\">" + error +  "</td></tr>")
-            }
-            for (var error of res.errors.information) {
-                $("#errors").append("<tr><td class=\"blue-text text-darken-4\"><i class=\"material-icons\" style=\"width: 25px;\">information</i></td><td class=\"blue-text text-darken-4\">Information</td><td class=\"blue-text text-darken-4\">" + error +  "</td></tr>")
-            }
-            $("#modal-errors").modal("open");
-        }
-        else {
-
+        switch (res.status) {
+            case 200:
+                $("#errors").html("");
+                $("#critical").html(res.errors.critical.length);
+                $("#warning").html(res.errors.warning.length);
+                $("#concern").html(res.errors.concern.length);
+                $("#information").html(res.errors.information.length);
+                for (var error of res.errors.critical) {
+                    $("#errors").append("<tr><td class=\"red-text text-darken-4\"><i class=\"material-icons\">cancel</i></td><td class=\"red-text text-darken-4\">Critical Error</td><td class=\"red-text text-darken-4\">" + error +  "</td></tr>")
+                }
+                for (var error of res.errors.warning) {
+                    $("#errors").append("<tr><td class=\"orange-text text-darken-4\"><i class=\"material-icons\">warning</i></td><td class=\"orange-text text-darken-4\">Warning</td><td class=\"orange-text text-darken-4\">" + error +  "</td></tr>")
+                }
+                for (var error of res.errors.concern) {
+                    $("#errors").append("<tr><td class=\"lime-text text-darken-4\"><i class=\"material-icons\">priority_high</i></td><td class=\"lime-text text-darken-4\">Concern</td><td class=\"lime-text text-darken-4\">" + error +  "</td></tr>")
+                }
+                for (var error of res.errors.information) {
+                    $("#errors").append("<tr><td class=\"blue-text text-darken-4\"><i class=\"material-icons\" style=\"width: 25px;\">information</i></td><td class=\"blue-text text-darken-4\">Information</td><td class=\"blue-text text-darken-4\">" + error +  "</td></tr>")
+                }
+                $("#modal-errors").modal("open");
+                break;
+            case 400:
+                M.toast({
+                    html: "An unknown error occured. Please try again later."
+                });
+                break;
+            case 401:
+                M.toast({
+                    html: "You are not authorised to use this system."
+                });
+                break;
+            case 403:
+                M.toast({
+                    html: "Your session has expired. Please log in again to continue."
+                });
+                break;
+            case 500:
+                M.toast({
+                    html: "The system could not contact the server. Please try again later."
+                });
+                break;
         }
     });
 });
@@ -243,15 +287,32 @@ $("#save").click(function() {
         publish: false,
         shifts: build("provisional")
     }, function(res) {
-        if (res.status === 200) {
-            M.toast({
-                html: "The rota has been saved."
-            });
-        }
-        else {
-            M.toast({
-                html: "An unknown error occurred."
-            });
+        switch (res.status) {
+            case 200:
+                M.toast({
+                    html: "The rota has been saved."
+                });
+                break;
+            case 400:
+                M.toast({
+                    html: "An unknown error occured. Please try again later."
+                });
+                break;
+            case 401:
+                M.toast({
+                    html: "You are not authorised to use this system."
+                });
+                break;
+            case 403:
+                M.toast({
+                    html: "Your session has expired. Please log in again to continue."
+                });
+                break;
+            case 500:
+                M.toast({
+                    html: "The system could not contact the server. Please try again later."
+                });
+                break;
         }
     });
 });
@@ -263,16 +324,32 @@ $("#publish").click(function() {
         publish: true,
         shifts: build("publish")
     }, function(res) {
-        if (res.status === 200) {
-            $("#save").remove();
-            M.toast({
-                html: "The rota has been saved and published."
-            });
-        }
-        else {
-            M.toast({
-                html: "An unknown error occurred."
-            });
+        switch (res.status) {
+            case 200:
+                M.toast({
+                    html: "The rota has been saved and published."
+                });
+                break;
+            case 400:
+                M.toast({
+                    html: "An unknown error occured. Please try again later."
+                });
+                break;
+            case 401:
+                M.toast({
+                    html: "You are not authorised to use this system."
+                });
+                break;
+            case 403:
+                M.toast({
+                    html: "Your session has expired. Please log in again to continue."
+                });
+                break;
+            case 500:
+                M.toast({
+                    html: "The system could not contact the server. Please try again later."
+                });
+                break;
         }
     });
 });
@@ -347,11 +424,33 @@ $("#save-week").click(function() {
         week.weekNumber = $("#header").data("week");
         week.year = $("#header").data("year");
         $.post("/week/", week, function(res) {
-            if (res.status === 200) {
-                $("#modal-settings").modal("close");
-                M.toast({
-                    html: "The week settings have been saved."
-                });
+            switch (res.status) {
+                case 200:
+                    $("#modal-settings").modal("close");
+                    M.toast({
+                        html: "The week settings have been saved."
+                    });
+                    break;
+                case 400:
+                    M.toast({
+                        html: "An unknown error occured. Please try again later."
+                    });
+                    break;
+                case 401:
+                    M.toast({
+                        html: "You are not authorised to use this system."
+                    });
+                    break;
+                case 403:
+                    M.toast({
+                        html: "Your session has expired. Please log in again to continue."
+                    });
+                    break;
+                case 500:
+                    M.toast({
+                        html: "The system could not contact the server. Please try again later."
+                    });
+                    break;
             }
         });
     }

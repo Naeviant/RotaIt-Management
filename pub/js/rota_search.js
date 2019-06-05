@@ -1,3 +1,6 @@
+$("#search").off("click");
+$(document).off("keypress");
+
 function search() {
     var week = $("#week").val(),
         year = $("#year").val();
@@ -32,6 +35,6 @@ $("#search").click(function() {
 
 $(document).on("keypress", function(e) {
     if (e.which == 13) {
-        search();
+        $("#search").click();
     }
 });

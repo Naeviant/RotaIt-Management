@@ -1,3 +1,7 @@
+$(document).undelegate("#add-event", "click");
+$(document).undelegate("#edit-event", "click");
+$(document).off("keypress");
+
 function change(content) {
     $("#content").fadeOut("fast", function() {
         $("#content").html(content);

@@ -1,3 +1,9 @@
+$(document).undelegate("#cancel", "click");
+$(document).undelegate("#save", "click");
+$(document).undelegate("#reset", "click");
+$(document).undelegate("#delete", "click");
+$(document).off("keypress");
+
 $(document).delegate("#cancel", "click", function() {
     $(".sidenav a[data-page='staff']").click();
 });
@@ -66,11 +72,30 @@ $(document).delegate("#save", "click", function() {
             password: password,
             availability: availability
         }, function(res) {
-            if (res.status === 200) {
-                $(".sidenav a[data-page='staff']").click();
-            }
-            else {
-                
+            switch (res.status) {
+                case 200:
+                    $(".sidenav a[data-page='staff']").click();
+                    break;
+                case 400:
+                    M.toast({
+                        html: "An unknown error occured. Please try again later."
+                    });
+                    break;
+                case 401:
+                    M.toast({
+                        html: "You are not authorised to use this system."
+                    });
+                    break;
+                case 403:
+                    M.toast({
+                        html: "Your session has expired. Please log in again to continue."
+                    });
+                    break;
+                case 500:
+                    M.toast({
+                        html: "The system could not contact the server. Please try again later."
+                    });
+                    break;
             }
         });
     }
@@ -89,14 +114,31 @@ $("#reset").click(function() {
             staffNumber: $(this).data("user"),
             password: password
         }, function(res) {
-            if (res.status === 200) {
-                $("#modal-password").modal("close");
-                $(".sidenav a[data-page='staff']").click();
-            }
-            else {
-                M.toast({
-                    html: "An unknown error occurred. Please try again later."
-                });
+            switch (res.status) {
+                case 200:
+                    $("#modal-password").modal("close");
+                    $(".sidenav a[data-page='staff']").click();
+                    break;
+                case 400:
+                    M.toast({
+                        html: "An unknown error occured. Please try again later."
+                    });
+                    break;
+                case 401:
+                    M.toast({
+                        html: "You are not authorised to use this system."
+                    });
+                    break;
+                case 403:
+                    M.toast({
+                        html: "Your session has expired. Please log in again to continue."
+                    });
+                    break;
+                case 500:
+                    M.toast({
+                        html: "The system could not contact the server. Please try again later."
+                    });
+                    break;
             }
         });
     }
@@ -115,7 +157,31 @@ $("#delete").click(function() {
             staffNumber: $(this).data("user")
         },
         success: function(res) {
-            $(".sidenav a[data-page='staff']").click();
+            switch (res.status) {
+                case 200:
+                    $(".sidenav a[data-page='staff']").click();
+                    break;
+                case 400:
+                    M.toast({
+                        html: "An unknown error occured. Please try again later."
+                    });
+                    break;
+                case 401:
+                    M.toast({
+                        html: "You are not authorised to use this system."
+                    });
+                    break;
+                case 403:
+                    M.toast({
+                        html: "Your session has expired. Please log in again to continue."
+                    });
+                    break;
+                case 500:
+                    M.toast({
+                        html: "The system could not contact the server. Please try again later."
+                    });
+                    break;
+            }
         }
     });
 });

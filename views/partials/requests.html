@@ -22,8 +22,8 @@
                                         <tr>
                                             <td>{{ request.fullName }}</td>
                                             <td>{{ request.staffNumber }}</td>
-                                            <td data-timestamp={{ request.from }}>{{ request.from|toDate }}</td>
-                                            <td data-timestamp={{ request.to }}>{{ request.to|toDate }}</td>
+                                            <td>{{ request.from|toDate }}</td>
+                                            <td>{{ request.to|toDate }}</td>
                                             <td>
                                                 {% if request.user_comment %}
                                                     {{ request.user_comment }}
@@ -32,7 +32,7 @@
                                                 {% endif %}
                                             </td>
                                             <td>
-                                                <a href="#modal-action" id="action" class="waves-effect waves-light btn light-blue tooltipped modal-trigger" data-position="left" data-tooltip="Approve/Reject"><i class="material-icons">build</i></a>
+                                                <a href="#modal-action" id="action" class="waves-effect waves-light btn light-blue tooltipped modal-trigger" data-position="left" data-tooltip="Approve/Reject" data-from={{ request.from }} data-to={{ request.to }} data-user={{ request.staffNumber }}><i class="material-icons">build</i></a>
                                             </td>
                                         </tr>
                                     {% endfor %}

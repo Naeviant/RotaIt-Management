@@ -1,3 +1,8 @@
+$(document).undelegate("#cancel-event", "click");
+$(document).undelegate("#save-event", "click");
+$(document).undelegate("#delete-event", "click");
+$(document).off("keypress");
+
 $(document).delegate("#cancel-event", "click", function() {
     $(".sidenav a[data-page='events']").click();
 });
@@ -30,11 +35,33 @@ $(document).delegate("#save-event", "click", function() {
             to: to,
             initial: initial
         }, function(res) {
-            if (res.status === 200) {
-                $(".sidenav a[data-page='events']").click();
-            }
-            else {
-                
+            switch (res.status) {
+                case 200:
+                    M.toast({
+                        html: res.message
+                    });
+                    $(".sidenav a[data-page='events']").click();
+                    break;
+                case 400:
+                    M.toast({
+                        html: "An unknown error occured. Please try again later."
+                    });
+                    break;
+                case 401:
+                    M.toast({
+                        html: "You are not authorised to use this system."
+                    });
+                    break;
+                case 403:
+                    M.toast({
+                        html: "Your session has expired. Please log in again to continue."
+                    });
+                    break;
+                case 500:
+                    M.toast({
+                        html: "The system could not contact the server. Please try again later."
+                    });
+                    break;
             }
         });
     }
@@ -42,6 +69,12 @@ $(document).delegate("#save-event", "click", function() {
         M.toast({
             html: "Please fill out all fields with valid values."
         });
+    }
+});
+
+$(document).on("keypress", function(e) {
+    if (e.which == 13) {
+        $("#save-event").click();
     }
 });
 
@@ -56,7 +89,33 @@ $("#delete-event").click(function() {
             to: new Date(Date.UTC(parseInt($("#to").val().split("-")[0]), parseInt($("#to").val().split("-")[1]) - 1, parseInt($("#to").val().split("-")[2])))
         },
         success: function(res) {
-            $(".sidenav a[data-page='events']").click();
+            switch (res.status) {
+                case 200:
+                    M.toast({
+                        html: res.message
+                    });
+                    $(".sidenav a[data-page='events']").click();
+                    break;
+                case 400:
+                    M.toast({
+                        html: "An unknown error occured. Please try again later."
+                    });
+                    break;
+                case 401:
+                    M.toast({
+                        html: "You are not authorised to use this system."
+                    });
+                    break;
+                case 403:
+                    M.toast({
+                        html: "Your session has expired. Please log in again to continue."
+                    });
+                    break;
+                case 500:
+                    M.toast({
+                        html: "The system could not contact the server. Please try again later."
+                    });
+                    break;
         }
     });
 });

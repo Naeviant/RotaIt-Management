@@ -1,4 +1,4 @@
-function login() {
+$("#login").click(function() {
     var staffNumber = $("#staffnumber").val(),
         password = $("#password").val();
 
@@ -37,14 +37,10 @@ function login() {
             html: "Please enter a staff number and password."
         });
     }
-}
-
-$("#login").click(function() {
-    login();
 });
 
 $(document).on("keypress", function(e) {
     if (e.which == 13) {
-        login();
+        $("#login").click()
     }
 });
