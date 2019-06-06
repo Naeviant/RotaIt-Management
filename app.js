@@ -1,17 +1,19 @@
 // Module Imports
 var express = require("express"),
     session = require("express-session"),
-    nunjucks = require("express-nunjucks"),
+    expressNunjucks = require("express-nunjucks"),
+    nunjucks = require("nunjucks"),
+    nunjucksEnv = new nunjucks.Environment(),
     mongodb = require("express-mongo-db"),
     bodyParser = require("body-parser"),
     cookieParser = require("cookie-parser"),
-    fs = require("fs"),
+    sendmail = require('sendmail')(),
     config = require("./config.json"),
     package = require("./package.json");
 
 // Setup Express App
 var app = express();
-var njk = nunjucks(app, {
+var njk = expressNunjucks(app, {
     watch: true,
     noCache: true,
     filters: {
@@ -26,6 +28,19 @@ var njk = nunjucks(app, {
             return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + (d.getUTCMinutes())).slice(-2);
         }
     }
+});
+nunjucksEnv.addFilter("toDate", function(t) {
+    var d = new Date(t);
+    return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
+});
+nunjucksEnv.addFilter("toTime", function(t) {
+    var d = new Date(t);
+    return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + (d.getUTCMinutes())).slice(-2);
+});
+nunjucksEnv.addFilter("toDay", function(t) {
+    var d = new Date(t),
+        days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return days[d.getDay()];
 });
 app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + "/pub"));
@@ -1238,6 +1253,41 @@ app.post("/rota/save/", function(req, res) {
                                     return;
                                 } 
                                 if (req.body.publish == "true") {
+                                    var users = [];
+                                    for (var shift of req.body.shifts) {
+                                        if (users.map(function(x) { return x.staffNumber; }).indexOf(shift.staffNumber) === -1) {
+                                            users.push({
+                                                staffNumber: shift.staffNumber
+                                            })
+                                        }
+                                    }
+                                    req.db.collection("users").find({
+                                        $or: users
+                                    }, function(err, resp) {
+                                        if (err) {
+                                            res.send({
+                                                status: 500,
+                                                message: "The system could not contact the server. Please try again later."
+                                            });
+                                            return;
+                                        } 
+                                        resp.toArray().then(function(users) {
+                                            users.forEach(function(user) {
+                                                var shifts = [];
+                                                for (var shift of req.body.shifts) {
+                                                    if (shift.staffNumber == user.staffNumber) {
+                                                        shifts.push(shift);
+                                                    }
+                                                }
+                                                sendmail({
+                                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                                    to: user.email,
+                                                    subject: "Your shifts for Week " + req.body.weekNumber + " have been published.",
+                                                    html: nunjucksEnv.render("./emails/published.html", { weekNumber: req.body.weekNumber, firstName: user.firstName, shifts: shifts })
+                                                });
+                                            });
+                                        });
+                                    });
                                     req.db.collection("weeks").updateOne({
                                         weekNumber: req.body.weekNumber,
                                         year: req.body.year
