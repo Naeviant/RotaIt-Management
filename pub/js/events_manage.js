@@ -116,6 +116,7 @@ $("#delete-event").click(function() {
                         html: "The system could not contact the server. Please try again later."
                     });
                     break;
+            }
         }
     });
 });

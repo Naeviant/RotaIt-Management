@@ -7,7 +7,7 @@ var express = require("express"),
     mongodb = require("express-mongo-db"),
     bodyParser = require("body-parser"),
     cookieParser = require("cookie-parser"),
-    sendmail = require('sendmail')(),
+    sendmail = require('sendmail')({ silent: true }),
     config = require("./config.json"),
     package = require("./package.json");
 
@@ -28,6 +28,9 @@ var njk = expressNunjucks(app, {
             return ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + (d.getUTCMinutes())).slice(-2);
         }
     }
+});
+nunjucksEnv.addFilter("date", function(d) {
+    return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
 });
 nunjucksEnv.addFilter("toDate", function(t) {
     var d = new Date(t);
@@ -863,6 +866,12 @@ app.post("/staff/", function(req, res) {
                                     });
                                     return;
                                 } 
+                                sendmail({
+                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                    to: req.body.email,
+                                    subject: "Your details have been updated.",
+                                    html: nunjucksEnv.render("./emails/details.html", { user: req.body, type: "updated" })
+                                });
                                 res.send({
                                     status: 200,
                                     message: "User Updated Successfully"
@@ -885,6 +894,12 @@ app.post("/staff/", function(req, res) {
                                     });
                                     return;
                                 } 
+                                sendmail({
+                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                    to: req.body.email,
+                                    subject: "Your details have been set.",
+                                    html: nunjucksEnv.render("./emails/details.html", { user: req.body, type: "set" })
+                                });
                                 res.send({
                                     status: 200,
                                     message: "User Added Successfully"
@@ -1363,6 +1378,7 @@ app.post("/rota/save/", function(req, res) {
                                                                 if (event.staffNumber == user.staffNumber) {
                                                                     if (event.type == "leave" && event.status == "approved") {
                                                                         var difference = user.hours - (standard + premium);
+                                                                        standard += difference;
                                                                         notices.push("You will use " + difference + " hours of annual leave in this week.")
                                                                     }
                                                                 }
@@ -1558,9 +1574,26 @@ app.post("/requests/", function(req, res) {
                             });
                             return;
                         } 
-                        res.send({
-                            status: 200,
-                            message: "Request Updated Successfully"
+                        req.db.collection("users").findOne({
+                            staffNumber: req.body.staffNumber
+                        }, function(err, user) {
+                            if (err) {
+                                res.send({
+                                    status: 500,
+                                    message: "The system could not contact the server. Please try again later."
+                                });
+                                return;
+                            } 
+                            sendmail({
+                                from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                to: user.email,
+                                subject: "Your annual leave request has been " + req.body.action + ".",
+                                html: nunjucksEnv.render("./emails/request.html", { firstName: user.firstName, action: req.body.action, from: req.body.from, to: req.body.to, comment: req.body.comment })
+                            });
+                            res.send({
+                                status: 200,
+                                message: "Request Updated Successfully"
+                            });
                         });
                     });
                 }
@@ -1605,47 +1638,87 @@ app.post("/event/", function(req, res) {
                 req.body.to = new Date(req.body.to).getTime();
                 req.body.team = resp.team;
                 if (req.body.staffNumber && req.body.fullName && req.body.type && req.body.from && !isNaN(req.body.from) && req.body.to && !isNaN(req.body.to) && req.body.from <= req.body.to) {
-                    if (req.body.initial) {
-                        req.body.initial.from = parseInt(req.body.initial.from);
-                        req.body.initial.to = parseInt(req.body.initial.to)
-                        req.db.collection("events").updateOne(req.body.initial, {
-                            $set: {
-                                staffNumber: req.body.staffNumber,
-                                fullName: req.body.fullName,
-                                type: req.body.type,
-                                from: req.body.from,
-                                to: req.body.to
-                            }
-                        }, function(err, done) {
-                            if (err) {
-                                res.send({
-                                    status: 500,
-                                    message: "The system could not contact the server. Please try again later."
-                                });
-                                return;
-                            } 
+                    req.db.collection("users").findOne({
+                        staffNumber: req.body.staffNumber
+                    }, function(err, user) {
+                        if (err) {
                             res.send({
-                                status: 200,
-                                message: "Event Updated Successfully"
+                                status: 500,
+                                message: "The system could not contact the server. Please try again later."
                             });
-                        });
-                    }
-                    else {
-                        delete req.body.initial;
-                        req.db.collection("events").insertOne(req.body, function(err, done) {
-                            if (err) {
-                                res.send({
-                                    status: 500,
-                                    message: "The system could not contact the server. Please try again later."
+                            return;
+                        } 
+                        if (req.body.initial) {
+                            req.body.initial.from = parseInt(req.body.initial.from);
+                            req.body.initial.to = parseInt(req.body.initial.to)
+                            req.db.collection("events").updateOne(req.body.initial, {
+                                $set: {
+                                    staffNumber: req.body.staffNumber,
+                                    fullName: req.body.fullName,
+                                    type: req.body.type,
+                                    from: req.body.from,
+                                    to: req.body.to
+                                }
+                            }, function(err, done) {
+                                if (err) {
+                                    res.send({
+                                        status: 500,
+                                        message: "The system could not contact the server. Please try again later."
+                                    });
+                                    return;
+                                } 
+                                sendmail({
+                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                    to: user.email,
+                                    subject: "A new " + req.body.type +  " event has been created for you.",
+                                    html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
                                 });
-                                return;
-                            } 
-                            res.send({
-                                status: 200,
-                                message: "Event Added Successfully"
+                                req.db.collection("users").findOne({
+                                    staffNumber: req.body.initial.staffNumber
+                                }, function(err, user) {
+                                    if (err) {
+                                        res.send({
+                                            status: 500,
+                                            message: "The system could not contact the server. Please try again later."
+                                        });
+                                        return;
+                                    }
+                                    sendmail({
+                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                        to: user.email,
+                                        subject: "Your " + req.body.type +  " event has been deleted.",
+                                        html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
+                                    });
+                                });
+                                res.send({
+                                    status: 200,
+                                    message: "Event Updated Successfully"
+                                });
                             });
-                        });
-                    }
+                        }
+                        else {
+                            delete req.body.initial;
+                            req.db.collection("events").insertOne(req.body, function(err, done) {
+                                if (err) {
+                                    res.send({
+                                        status: 500,
+                                        message: "The system could not contact the server. Please try again later."
+                                    });
+                                    return;
+                                } 
+                                sendmail({
+                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                    to: user.email,
+                                    subject: "A new " + req.body.type +  " event has been created for you.",
+                                    html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
+                                });
+                                res.send({
+                                    status: 200,
+                                    message: "Event Added Successfully"
+                                });
+                            });
+                        }
+                    });
                 }
                 else {
                     res.send({
@@ -1736,8 +1809,9 @@ app.delete("/event/", function(req, res) {
                 return;
             } 
             if (resp.manager === true) {
-                if (req.body && req.body.staffNumber && req.body.type && req.body.from && !isNaN(parseInt(req.body.from)) && req.body.to && !isNaN(parseInt(req.body.to))) {req.body.from = parseInt(req.body.from);
-                    req.body.to = parseInt(req.body.to);
+                req.body.from = new Date(req.body.from).getTime();
+                req.body.to = new Date(req.body.to).getTime();
+                if (req.body && req.body.staffNumber && req.body.type && req.body.from && !isNaN(parseInt(req.body.from)) && req.body.to && !isNaN(parseInt(req.body.to))) {
                     req.db.collection("events").deleteOne({
                         staffNumber: req.body.staffNumber,
                         type: req.body.type,
@@ -1751,9 +1825,26 @@ app.delete("/event/", function(req, res) {
                             });
                             return;
                         } 
-                        res.send({
-                            status: 200,
-                            message: "Event Deleted Successfully"
+                        req.db.collection("users").findOne({
+                            staffNumber: req.body.staffNumber
+                        }, function(err, user) {
+                            if (err) {
+                                res.send({
+                                    status: 500,
+                                    message: "The system could not contact the server. Please try again later."
+                                });
+                                return;
+                            }
+                            sendmail({
+                                from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                to: user.email,
+                                subject: "Your " + req.body.type +  " event has been deleted.",
+                                html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
+                            });
+                            res.send({
+                                status: 200,
+                                message: "Event Deleted Successfully"
+                            });
                         });
                     });
                 }

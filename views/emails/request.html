@@ -93,12 +93,9 @@
             #body {
                 background-color: #FFFFFF;
             }
-            #body td, #body th {
+            #body td {
                 padding: 0 20px 20px 20px;
                 text-align: left;
-            }
-            #body td ul {
-                margin-top: -16px;
             }
             #footer {
                 height: 20px;
@@ -133,45 +130,18 @@
                                     <table id="body" width="100%" style="width: 100%;">
                                         <tr>
                                             <td>
-                                                <h3 style="margin-top: 20px; text-align: center;">Your shifts for Week {{ weekNumber }} have been published.</h3>
+                                                <h3 style="margin-top: 20px; text-align: center;">Your annual leave request has been {{ action }}.</h3>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
                                                 <p>Hi {{ firstName }},</p>
-                                                <p>Your shifts for week {{ weekNumber }} are as listed below.</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <table width="100%" style="width: 100%;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Date</th>
-                                                            <th>In</th>
-                                                            <th>Out</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for shift in shifts %}
-                                                            <tr>
-                                                                <td>{{ shift.start|toDay }} {{ shift.start|toDate }}</td>
-                                                                <td>{{ shift.start|toTime }}</td>
-                                                                <td>{{ shift.end|toTime }}</td>
-                                                            </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <p>
-                                                    Please note: <br>
-                                                    {% for notice in notices %}
-                                                        • {{ notice }} <br>
-                                                    {% endfor %}
-                                                </p>
+                                                <p>Your annual leave request from {{ from|toDate }} to {{ to|toDate }} has been {{ action }}.</p>
+                                                {% if comment %}
+                                                    <p>The following comment was attached: <br> <em>{{ comment }}</em></p>
+                                                {% else %}
+                                                    <p>No comment was attached.</p>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     </table>
