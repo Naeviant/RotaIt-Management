@@ -1253,16 +1253,39 @@ app.post("/rota/save/", function(req, res) {
                                     return;
                                 } 
                                 if (req.body.publish == "true") {
-                                    var users = [];
-                                    for (var shift of req.body.shifts) {
-                                        if (users.map(function(x) { return x.staffNumber; }).indexOf(shift.staffNumber) === -1) {
-                                            users.push({
-                                                staffNumber: shift.staffNumber
-                                            })
-                                        }
-                                    }
-                                    req.db.collection("users").find({
-                                        $or: users
+                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime(),
+                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime();
+                                    req.db.collection("events").find({
+                                        team: resp.team,
+                                        $or: [
+                                            { $and: [
+                                                    {
+                                                        from: {
+                                                            $lte: start
+                                                        }
+                                                    },
+                                                    {
+                                                        to: {
+                                                            $gte: start
+                                                        }
+                                                    }
+                                                ] 
+                                            },
+                                            {
+                                                $and: [
+                                                    {
+                                                        from: {
+                                                            $gte: start
+                                                        }
+                                                    },
+                                                    {
+                                                        from: {
+                                                            $lte: end
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     }, function(err, resp) {
                                         if (err) {
                                             res.send({
@@ -1270,21 +1293,93 @@ app.post("/rota/save/", function(req, res) {
                                                 message: "The system could not contact the server. Please try again later."
                                             });
                                             return;
-                                        } 
-                                        resp.toArray().then(function(users) {
-                                            users.forEach(function(user) {
-                                                var shifts = [];
-                                                for (var shift of req.body.shifts) {
-                                                    if (shift.staffNumber == user.staffNumber) {
-                                                        shifts.push(shift);
-                                                    }
+                                        }
+                                        resp.toArray().then(function(events) {
+                                            var users = [];
+                                            for (var shift of req.body.shifts) {
+                                                if (users.map(function(x) { return x.staffNumber; }).indexOf(shift.staffNumber) === -1) {
+                                                    users.push({
+                                                        staffNumber: shift.staffNumber
+                                                    })
                                                 }
-                                                sendmail({
-                                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                                    to: user.email,
-                                                    subject: "Your shifts for Week " + req.body.weekNumber + " have been published.",
-                                                    html: nunjucksEnv.render("./emails/published.html", { weekNumber: req.body.weekNumber, firstName: user.firstName, shifts: shifts })
-                                                });
+                                            }
+                                            for (var event of events) {
+                                                if (users.map(function(x) { return x.staffNumber; }).indexOf(event.staffNumber) === -1) {
+                                                    users.push({
+                                                        staffNumber: event.staffNumber
+                                                    })
+                                                }
+                                            }
+                                            req.db.collection("users").find({
+                                                $or: users
+                                            }, function(err, resp) {
+                                                if (err) {
+                                                    res.send({
+                                                        status: 500,
+                                                        message: "The system could not contact the server. Please try again later."
+                                                    });
+                                                    return;
+                                                } 
+                                                resp.toArray().then(function(users) {
+                                                    req.db.collection("weeks").findOne({
+                                                        weekNumber: req.body.weekNumber,
+                                                        year: req.body.year
+                                                    }, function(err, week) {
+                                                        var days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+                                                        if (err) {
+                                                            res.send({
+                                                                status: 500,
+                                                                message: "The system could not contact the server. Please try again later."
+                                                            });
+                                                            return;
+                                                        } 
+                                                        users.forEach(function(user) {
+                                                            var shifts = [],
+                                                                standard = 0,
+                                                                premium = 0,
+                                                                notices = [];
+                                                            for (var shift of req.body.shifts) {
+                                                                if (shift.staffNumber == user.staffNumber) {
+                                                                    var d = new Date(shift.start),
+                                                                        length = ((new Date(shift.end).getTime() - d.getTime()) / 3600000) - (parseInt(shift.breaks)) / 60;
+                                                                    if (week[days[d.getUTCDay()]].bankHoliday === true) {
+                                                                        premium += length;
+                                                                        notices.push("You will be paid 1.5x on " + ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear());
+                                                                    }
+                                                                    else {
+                                                                        for (var i = 0; i < length; i += 0.25) {
+                                                                            if (standard === 39) {
+                                                                                premium += 0.25;
+                                                                            }
+                                                                            else {
+                                                                                standard += 0.25;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    shifts.push(shift);
+                                                                }
+                                                            }
+                                                            for (var event of events) {
+                                                                if (event.staffNumber == user.staffNumber) {
+                                                                    if (event.type == "leave" && event.status == "approved") {
+                                                                        var difference = user.hours - (standard + premium);
+                                                                        notices.push("You will use " + difference + " hours of annual leave in this week.")
+                                                                    }
+                                                                }
+                                                            }
+                                                            var pay = (user.pay * standard) + (user.pay * premium * 1.5);
+                                                            notices.push("You will be paid £" + pay.toFixed(2) + " in this week.")
+                                                            if (shifts[0] || notices.length > 1) {
+                                                                sendmail({
+                                                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                                                    to: user.email,
+                                                                    subject: "Your shifts for Week " + req.body.weekNumber + " have been published.",
+                                                                    html: nunjucksEnv.render("./emails/published.html", { weekNumber: req.body.weekNumber, firstName: user.firstName, shifts: shifts, notices: notices })
+                                                                });
+                                                            }
+                                                        });
+                                                    });
+                                                 });
                                             });
                                         });
                                     });

@@ -93,14 +93,12 @@
             #body {
                 background-color: #FFFFFF;
             }
-            #body td {
+            #body td, #body th {
                 padding: 0 20px 20px 20px;
+                text-align: left;
             }
-            #body tr:nth-of-type(1) td {
-                padding-top: 20px;
-            }
-            #body tr:nth-of-type(1) {
-                text-align: center;
+            #body td ul {
+                margin-top: -16px;
             }
             #footer {
                 height: 20px;
@@ -166,6 +164,17 @@
                                                 </table>
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <td>
+                                                <p>Please note:</p>
+                                                <ul>
+                                                    {% for notice in notices %}
+                                                        <li>{{ notice }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
                                     </table>
                                     <table id="footer" width="100%" style="width: 100%;">
                                         <tr>
