@@ -5,7 +5,7 @@ $(document).off("keypress");
 function change(content) {
     $("#content").fadeOut("fast", function() {
         $("#content").html(content);
-        $('.tooltip').tooltip("destroy");
+        $('.material-tooltip').remove();
         M.AutoInit();
         M.updateTextFields();
         $("#content").fadeIn("fast", function() {

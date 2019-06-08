@@ -173,7 +173,7 @@ app.get("/partial/rota_manage/", function(req, res) {
         if (req.query.week && req.query.year && !isNaN(parseInt(req.query.week)) && !isNaN(parseInt(req.query.year))) {
             req.query.week = parseInt(req.query.week);
             req.query.year = parseInt(req.query.year);
-            if (req.query.year >= 2000 && req.query.week >= 1 && req.query.week <= 53) {
+            if (req.query.year >= 2000 && req.query.week >= 1 && req.query.week <= 52) {
                 req.db.collection("users").findOne({
                     staffNumber: req.session.loggedin
                 }, function(err, resp) {
@@ -184,7 +184,7 @@ app.get("/partial/rota_manage/", function(req, res) {
                         });
                         return;
                     } 
-                    var limit = new Date(1547942400000 + (parseInt((req.query.week + 1) * 604800000))).getTime();
+                    var limit = new Date(1547942400000 + (parseInt((req.query.week + 1) * 604800000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000);
                     if (limit < Date.now()) {
                         req.db.collection("weeks").findOne({
                             weekNumber: req.query.week,
@@ -211,8 +211,8 @@ app.get("/partial/rota_manage/", function(req, res) {
                                         return;
                                     } 
                                     resp.toArray().then(function(shifts) {
-                                        var start = new Date(1547942400000 + (parseInt(req.query.week * 604800000))).getTime(),
-                                            end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime();
+                                        var start = new Date(1547942400000 + (parseInt(req.query.week * 604800000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000),
+                                            end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000);
                                         req.db.collection("events").find({
                                             $or: [
                                                 { $and: [
@@ -703,8 +703,8 @@ app.get("/events/", function(req, res) {
                     return;
                 } 
                 if (resp.manager === true) {
-                    var start = new Date(1547942400000 + (parseInt(req.query.week * 604800000))).getTime(),
-                        end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime();
+                    var start = new Date(1547942400000 + (parseInt(req.query.week * 604800000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000),
+                        end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000);
                     req.db.collection("events").find({
                         $or: [
                             { $and: [
@@ -856,9 +856,12 @@ app.post("/staff/", function(req, res) {
                     }, function(err, exists) {
                         if (exists && !req.body.newUser) {
                             delete req.body.newUser;
+                            delete req.body.password;
                             req.db.collection("users").updateOne({
                                 staffNumber: req.body.staffNumber
-                            }, req.body, function(err, done) {
+                            }, {
+                                $set: req.body
+                            }, function(err, done) {
                                 if (err) {
                                     res.send({
                                         status: 500,
@@ -1029,8 +1032,8 @@ app.post("/rota/verify/", function(req, res) {
                                         });
                                         return;
                                     } 
-                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime(),
-                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime();
+                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000),
+                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000);
                                     req.db.collection("events").find({
                                         $or: [
                                             { $and: [
@@ -1268,8 +1271,8 @@ app.post("/rota/save/", function(req, res) {
                                     return;
                                 } 
                                 if (req.body.publish == "true") {
-                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime(),
-                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime();
+                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000),
+                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000);
                                     req.db.collection("events").find({
                                         team: resp.team,
                                         $or: [
