@@ -22,6 +22,7 @@
                                     <div id="type" class="input-field col s12 m6 l3" data-initial="{{ event.type }}">
                                         <select>
                                             <option value="" disabled {% if not edit %} selected {% endif %}></option>
+                                            <option value="leave" {% if event.type == "leave" %} selected {% endif %}>Annual Leave</option>
                                             <option value="sickness" {% if event.type == "sickness" %} selected {% endif %}>Sickness</option>
                                             <option value="maternity" {% if event.type == "maternity" %} selected {% endif %}>Maternity</option>
                                             <option value="paternity" {% if event.type == "paternity" %} selected {% endif %}>Paternity</option>

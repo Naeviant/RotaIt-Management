@@ -468,11 +468,18 @@ app.get("/partial/events/", function(req, res) {
         d.setSeconds(0);
         d.setMilliseconds(0);
         req.db.collection("events").find({
-                type: {
-                    $not: {
-                        $eq: "leave"
+                $or: [
+                    {
+                        type: {
+                            $not: {
+                                $eq: "leave"
+                            }
+                        }
+                    },
+                    {
+                        status: "fixed"
                     }
-                },
+                ],
                 to: {
                     $gt: d.getTime()
                 },
@@ -1660,6 +1667,11 @@ app.post("/event/", function(req, res) {
                 req.body.to = new Date(req.body.to).getTime();
                 req.body.team = resp.team;
                 if (req.body.staffNumber && req.body.fullName && req.body.type && req.body.from && !isNaN(req.body.from) && req.body.to && !isNaN(req.body.to) && req.body.from <= req.body.to) {
+                    if (req.body.type == "leave") {
+                        req.body.status = "fixed";
+                        req.body.manager_comment = null;
+                        req.body.user_comment = null;
+                    }
                     req.db.collection("users").findOne({
                         staffNumber: req.body.staffNumber
                     }, function(err, user) {
