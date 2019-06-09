@@ -1032,8 +1032,8 @@ app.post("/rota/verify/", function(req, res) {
                                         });
                                         return;
                                     } 
-                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000),
-                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000);
+                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime() + ((parseInt(req.body.year) - 2019) * 31536000000),
+                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.body.year) - 2019) * 31536000000);
                                     req.db.collection("events").find({
                                         $or: [
                                             { $and: [
@@ -1079,7 +1079,8 @@ app.post("/rota/verify/", function(req, res) {
                                                 concern: [],
                                                 information: []
                                             },
-                                                days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+                                                days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"],
+                                                cost = 0;
                                             for (var shift of req.body.shifts) {
                                                 var index = team.map(function(x) { return x.staffNumber }).indexOf(shift.staffNumber),
                                                     s = new Date(shift.start),
@@ -1099,6 +1100,12 @@ app.post("/rota/verify/", function(req, res) {
                                                 if ((s.getUTCDay() > 0 && s.getUTCHours() < 12 && team[index].availability[days[s.getUTCDay()]].morning === false) || (s.getUTCDay() === 0 && s.getUTCHours() < 13 && team[index].availability.sun.morning === false) || (s.getUTCDay() > 0 && s.getUTCHours() < 17 && s.getUTCHours() > 11 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() > 0 && e.getUTCHours() < 17 && e.getUTCHours() > 12 && e.getUTCMinutes() > 0 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() === 0 && e.getUTCHours() > 12 && team[index].availability.sun.afternoon === false) || (s.getUTCDay() > 0 && s.getUTCDay() < 6 && e.getUTCHours() > 16 && e.getUTCMinutes() > 0 && team[index].availability[days[s.getUTCDay()]].evening === false) || (s.getUTCDay() === 6 && e.getUTCHours() > 15 && team[index].availability[days[s.getUTCDay()]].evening === false)) {
                                                     errors.warning.push("Availability matrix ignored for " + team[index].firstName + " " + team[index].lastName +  " on " + date + ".");
                                                 }
+                                                if (week[days[s.getUTCDay()]].bankHoliday === true) {
+                                                    cost += length * team[index].pay * 1.5;
+                                                }
+                                                else {
+                                                    cost += length * team[index].pay;
+                                                }
                                             }
                                             for (var user of team) {
                                                 if (!user.assigned) {
@@ -1115,10 +1122,12 @@ app.post("/rota/verify/", function(req, res) {
                                                     for (var event of events) {
                                                         if ((event.type == "suspension" || event.type == "maternity" || event.type == "paternity" || event.type == "sickness" || event.type == "elsewhere") && event.staffNumber == user.staffNumber) {
                                                             done = true;
+                                                            cost += ((user.hours - user.assigned) * user.pay);
                                                             break;
                                                         }
                                                         if (event.type == "leave" && event.status == "approved" && event.staffNumber == user.staffNumber) {
                                                             done = true;
+                                                            cost += ((user.hours - user.assigned) * user.pay);
                                                             errors.information.push((user.hours - user.assigned) + " hours of annual leave used by " + user.firstName + " " + user.lastName +  ".");
                                                             break;
                                                         }
@@ -1132,8 +1141,9 @@ app.post("/rota/verify/", function(req, res) {
                                                 if (week[day].closed === false) {
                                                     var i = week[day].openCustomers.getTime(),
                                                         j = 0,
+                                                        t = "",
                                                         fulldays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                                                    while (i < week[day].closedCustomers.getTime()) {
+                                                    while (i <= week[day].closedCustomers.getTime()) {
                                                         var d = new Date(i),
                                                             time = ("0" + d.getUTCHours()).slice(-2) + ":" + ("0" + (d.getUTCMinutes())).slice(-2)
                                                             n = 0;
@@ -1146,22 +1156,30 @@ app.post("/rota/verify/", function(req, res) {
                                                                 }
                                                             }
                                                         }
-                                                        if (n === 0) {
+                                                        if (n === 0 && new Date(1970, 0, 1, d.getUTCHours(), d.getUTCMinutes()).getTime() !== week[day].closedCustomers.getTime()) {
                                                             errors.critical.push("No staff available on " + fulldays[days.indexOf(day)] + " at " + time + ".");
                                                         }
                                                         else if (n === 1) {
                                                             errors.warning.push("Only one member of staff available on " + fulldays[days.indexOf(day)] + " at " + time + ".");
                                                         }
                                                         else if (n === 2) {
-                                                            if (j >= 10800000) {
-                                                                errors.concern.push("Only two members of staff available on " + fulldays[days.indexOf(day)] + " at " + time + " for over three hours.");
+                                                            if (j === 10800000) {
+                                                                t = time;
                                                             }
                                                             j += 900000;
                                                         }
                                                         else {
+                                                            if (t) {
+                                                                errors.concern.push("Only two members of staff available for over three hours on " + fulldays[days.indexOf(day)] + " from " + t + " to " + time + ".");
+                                                                t = "";
+                                                            }
                                                             j = 0;
                                                         }
                                                         i += 900000;
+                                                    }
+                                                    if (t) {
+                                                        errors.concern.push("Only two members of staff available on " + fulldays[days.indexOf(day)] + " from " + t + " to " + time + ".");
+                                                        t = "";
                                                     }
                                                     var beforeOpen = week[day].openCustomers.getTime() - 900000,
                                                         afterClose = week[day].closedCustomers.getTime() + 900000,
@@ -1185,6 +1203,7 @@ app.post("/rota/verify/", function(req, res) {
                                                     }
                                                 }
                                             }
+                                            errors.information.push("Total staff costs of the rota are £" + cost.toFixed(2));
                                             res.send({
                                                 status: 200,
                                                 errors: errors
@@ -1271,8 +1290,8 @@ app.post("/rota/save/", function(req, res) {
                                     return;
                                 } 
                                 if (req.body.publish == "true") {
-                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000),
-                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000);
+                                    var start = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000))).getTime() + ((parseInt(req.body.year) - 2019) * 31536000000),
+                                        end = new Date(1547942400000 + (parseInt(req.body.weekNumber * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.body.year) - 2019) * 31536000000);
                                     req.db.collection("events").find({
                                         team: resp.team,
                                         $or: [

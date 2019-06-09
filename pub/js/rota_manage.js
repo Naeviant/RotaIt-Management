@@ -1,4 +1,7 @@
 $(document).off("ready");
+$("#change").off("click");
+$("#previous").off("click");
+$("#next").off("click");
 $("#verify").off("click");
 $("#save").off("click");
 $("#publish").off("click");
@@ -171,7 +174,6 @@ function colour() {
 $(document).ready(function() {
     $("#rota thead tr:nth-of-type(2) td").each(function(i) {
         var d = new Date(1547942400000 + (parseInt($("#header").data("week")) * 604800000) + ((parseInt($("#header").data("year")) - 2019) * 31536000000) - (Math.floor((parseInt($("#header").data("year")) - 2016) / 4) * 86400000) + (i * 86400000));
-        console.log(d)
         $(this).html(("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear());
     });
     $.get("/rota/", {
@@ -228,6 +230,64 @@ $(document).ready(function() {
 
 $(document).delegate("#rota input", "change", function() {
     colour();
+});
+
+$("#change").click(function() {
+    $(".sidenav a[data-page='rota']").click();
+});
+
+$("#previous").click(function() {
+     var week = $("#header").data("week") - 1,
+        year = $("#header").data("year");
+
+    if (week < 1) {
+        week = 52;
+        year -= 1;
+    }
+
+    $.get("/partial/rota_manage", {
+        week: week,
+        year: year
+    }, function(res) {
+        $("#content").fadeOut("fast", function() {
+            $("#content").html(res);
+            $('.material-tooltip').remove();
+            stopOverflow();
+            M.AutoInit();
+            $("#content").fadeIn("fast", function() {
+                if ($(".valign-wrapper>.col").height() > $(window).height() - 100) {
+                    $(".valign-wrapper").removeClass("valign-wrapper");
+                }
+            });
+        });
+    });
+});
+
+$("#next").click(function() {
+     var week = $("#header").data("week") + 1,
+        year = $("#header").data("year");
+
+    if (week > 52) {
+        week = 1;
+        year += 1;
+    }
+
+    $.get("/partial/rota_manage", {
+        week: week,
+        year: year
+    }, function(res) {
+        $("#content").fadeOut("fast", function() {
+            $("#content").html(res);
+            $('.material-tooltip').remove();
+            stopOverflow();
+            M.AutoInit();
+            $("#content").fadeIn("fast", function() {
+                if ($(".valign-wrapper>.col").height() > $(window).height() - 100) {
+                    $(".valign-wrapper").removeClass("valign-wrapper");
+                }
+            });
+        });
+    });
 });
 
 $("#verify").click(function() {

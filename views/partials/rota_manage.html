@@ -22,6 +22,9 @@
                 <div class="row" style="margin: 0;">
                     <div class="col s12 center">
                         <h4 id="header" data-week="{{ week.weekNumber }}" data-year="{{ week.year }}">
+                            <a href="#!" id="change" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Change Week" style="margin-left: 5px;"><i class="material-icons">clear</i></a>
+                            <a href="#!" id="previous" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Previous Week" style="margin-left: 5px;"><i class="material-icons">arrow_back</i></a>
+                            <a href="#!" id="next" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Next Week" style="margin-left: 5px;"><i class="material-icons">arrow_forward</i></a>
                             Rota for Week {{ week.weekNumber }} ({{ week.year }})
                             {% if not past %}
                                 <a href="#!" id="publish" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Publish" style="margin-left: 5px;"><i class="material-icons">publish</i></a>
