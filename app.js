@@ -1191,6 +1191,8 @@ app.post("/rota/verify/", function(req, res) {
                                                     }
                                                     var beforeOpen = week[day].openCustomers.getTime() - 900000,
                                                         afterClose = week[day].closedCustomers.getTime() + 900000,
+                                                        staffOpen = week[day].openStaff.getTime(),
+                                                        staffClose = week[day].closedStaff.getTime(),
                                                         before = false,
                                                         after = false;
                                                     for (var shift of req.body.shifts) {
@@ -1200,6 +1202,13 @@ app.post("/rota/verify/", function(req, res) {
                                                             }
                                                             if (new Date(1970, 0, 1, new Date(shift.end).getUTCHours(), new Date(shift.end).getUTCMinutes()).getTime() >= afterClose) {
                                                                 after = true;
+                                                            }
+                                                            var user = team[team.map(function(x) { return x.staffNumber; }).indexOf(shift.staffNumber)];
+                                                            if (new Date(1970, 0, 1, new Date(shift.start).getUTCHours(), new Date(shift.start).getUTCMinutes()).getTime() < staffOpen) {
+                                                                errors.critical.push("Shift assigned to " + user.firstName + " " + user.lastName + " on " + fulldays[days.indexOf(day)] + " starts before store opened.");
+                                                            }
+                                                            if (new Date(1970, 0, 1, new Date(shift.end).getUTCHours(), new Date(shift.end).getUTCMinutes()).getTime() > staffClose) {
+                                                                errors.critical.push("Shift assigned to " + user.firstName + " " + user.lastName + " on " + fulldays[days.indexOf(day)] + " ends after store closed.");
                                                             }
                                                         }
                                                     }
