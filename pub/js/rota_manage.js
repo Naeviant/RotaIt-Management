@@ -64,8 +64,36 @@ function colour() {
                 year: $("#header").data("year")
             }, function(resp) {
                 if (resp.status === 200) {
-                    $("#rota tbody tr td").removeClass("yellow orange pink lighten-5")
                     var keys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+                    $("#rota tbody tr td").removeClass("yellow orange pink green purple blue red grey black hashed lighten-5");
+                    for (var j = 0; j < 7; j++) {
+                        if (res.week[keys[j]].bankHoliday === true) {
+                            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html().replace("(BH)", ""));
+                            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html() + " (BH)");
+                        }
+                        else {
+                            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html().replace("(BH)", ""));
+                        }
+                        if (res.week[keys[j]].closed === true) {
+                            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html().replace("(C)", ""));
+                            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html() + " (C)");
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").attr("disabled", true);
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").attr("disabled", true);
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").attr("disabled", true);
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").val("");
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").val("");
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").val("");
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ")").addClass("hashed black")
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ")").addClass("hashed black")
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ")").addClass("hashed black")
+                        }
+                        else {
+                            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html().replace("(C)", ""));
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").attr("disabled", false);
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").attr("disabled", false);
+                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").attr("disabled", false);
+                        }
+                    }
                     $("#rota tbody tr").each(function(i) {
                         var staffNumber = $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(1)").html().split(" <br> ")[1];
 
@@ -99,9 +127,9 @@ function colour() {
                                         $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed red");
                                     }
                                     if (event.type == "elsewhere") {
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed black");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed black");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed black");
+                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed grey");
+                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed grey");
+                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed grey");
                                     }
                                 }
                             }
@@ -421,7 +449,7 @@ $("#export").click(function() {
         to_week = $("#export-to-week").val(),
         to_year = $("#export-to-year").val();
 
-    if (from_week && from_year && to_week && to_year && !isNaN(from_week) && !isNaN(from_year) && !isNaN(to_week) && !isNaN(to_year) && from_week <= 1 && from_week <= 52 && from_year >= 2019 && to_week <= 1 && to_week <= 52 && to_year >= 2019) {
+    if (from_week && from_year && to_week && to_year && !isNaN(from_week) && !isNaN(from_year) && !isNaN(to_week) && !isNaN(to_year) && from_week >= 1 && from_week <= 52 && from_year >= 2019 && to_week >= 1 && to_week <= 52 && to_year >= 2019) {
         window.open("/rota/export?from_week=" + from_week + "&from_year=" + from_year + "&to_week=" + to_week + "&to_year=" + to_year);
     }
     else {
@@ -504,6 +532,7 @@ $("#save-week").click(function() {
             switch (res.status) {
                 case 200:
                     $("#modal-settings").modal("close");
+                    colour();
                     M.toast({
                         html: "The week settings have been saved."
                     });
