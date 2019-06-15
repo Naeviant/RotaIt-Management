@@ -2047,12 +2047,14 @@ app.post("/requests/", function(req, res) {
                                 });
                                 return;
                             } 
-                            sendmail({
-                                from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                to: user.email,
-                                subject: "Your annual leave request has been " + req.body.action + ".",
-                                html: nunjucksEnv.render("./emails/request.html", { firstName: user.firstName, action: req.body.action, from: req.body.from, to: req.body.to, comment: req.body.comment })
-                            });
+                            if (user && user.email) {
+                                sendmail({
+                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                    to: user.email,
+                                    subject: "Your annual leave request has been " + req.body.action + ".",
+                                    html: nunjucksEnv.render("./emails/request.html", { firstName: user.firstName, action: req.body.action, from: req.body.from, to: req.body.to, comment: req.body.comment })
+                                });
+                            }
                             res.send({
                                 status: 200,
                                 message: "Request Updated Successfully"
@@ -2135,12 +2137,14 @@ app.post("/event/", function(req, res) {
                                     });
                                     return;
                                 } 
-                                sendmail({
-                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                    to: user.email,
-                                    subject: "A new " + req.body.type +  " event has been created for you.",
-                                    html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
-                                });
+                                if (user && user.email) {
+                                    sendmail({
+                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                        to: user.email,
+                                        subject: "A new " + req.body.type +  " event has been created for you.",
+                                        html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
+                                    });
+                                }
                                 req.db.collection("users").findOne({
                                     staffNumber: req.body.initial.staffNumber
                                 }, function(err, user) {
@@ -2151,12 +2155,14 @@ app.post("/event/", function(req, res) {
                                         });
                                         return;
                                     }
-                                    sendmail({
-                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                        to: user.email,
-                                        subject: "Your " + req.body.type +  " event has been deleted.",
-                                        html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
-                                    });
+                                    if (user && user.email) {
+                                        sendmail({
+                                            from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                            to: user.email,
+                                            subject: "Your " + req.body.type +  " event has been deleted.",
+                                            html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
+                                        });
+                                    }
                                 });
                                 res.send({
                                     status: 200,
@@ -2174,12 +2180,14 @@ app.post("/event/", function(req, res) {
                                     });
                                     return;
                                 } 
-                                sendmail({
-                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                    to: user.email,
-                                    subject: "A new " + req.body.type +  " event has been created for you.",
-                                    html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
-                                });
+                                if (user && user.email) {
+                                    sendmail({
+                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                        to: user.email,
+                                        subject: "A new " + req.body.type +  " event has been created for you.",
+                                        html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
+                                    });
+                                }
                                 res.send({
                                     status: 200,
                                     message: "Event Added Successfully"
@@ -2303,12 +2311,14 @@ app.delete("/event/", function(req, res) {
                                 });
                                 return;
                             }
-                            sendmail({
-                                from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                to: user.email,
-                                subject: "Your " + req.body.type +  " event has been deleted.",
-                                html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
-                            });
+                            if (user && user.email) {
+                                sendmail({
+                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                    to: user.email,
+                                    subject: "Your " + req.body.type +  " event has been deleted.",
+                                    html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
+                                });
+                            }
                             res.send({
                                 status: 200,
                                 message: "Event Deleted Successfully"

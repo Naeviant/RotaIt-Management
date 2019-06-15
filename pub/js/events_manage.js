@@ -1,6 +1,7 @@
 $(document).undelegate("#cancel-event", "click");
 $(document).undelegate("#save-event", "click");
 $(document).undelegate("#delete-event", "click");
+$("#staffnumber select, #type select, #from, #to").off("change");
 $(document).off("keypress");
 
 $(document).delegate("#cancel-event", "click", function() {
@@ -79,44 +80,60 @@ $(document).on("keypress", function(e) {
 });
 
 $("#delete-event").click(function() {
-    $.ajax({
-        url: "/event/",
-        type: "DELETE",
-        data: {
-            staffNumber: $("#staffnumber select").val(),
-            type: $("#type select").val(),
-            from: new Date(Date.UTC(parseInt($("#from").val().split("-")[0]), parseInt($("#from").val().split("-")[1]) - 1, parseInt($("#from").val().split("-")[2]))),
-            to: new Date(Date.UTC(parseInt($("#to").val().split("-")[0]), parseInt($("#to").val().split("-")[1]) - 1, parseInt($("#to").val().split("-")[2])))
-        },
-        success: function(res) {
-            switch (res.status) {
-                case 200:
-                    M.toast({
-                        html: res.message
-                    });
-                    $(".sidenav a[data-page='events']").click();
-                    break;
-                case 400:
-                    M.toast({
-                        html: "An unknown error occured. Please try again later."
-                    });
-                    break;
-                case 401:
-                    M.toast({
-                        html: "You are not authorised to use this system."
-                    });
-                    break;
-                case 403:
-                    M.toast({
-                        html: "Your session has expired. Please log in again to continue."
-                    });
-                    break;
-                case 500:
-                    M.toast({
-                        html: "The system could not contact the server. Please try again later."
-                    });
-                    break;
+    var staffNumber = $("#staffnumber select").val(),
+        type = $("#type select").val(),
+        from = new Date(Date.UTC(parseInt($("#from").val().split("-")[0]), parseInt($("#from").val().split("-")[1]) - 1, parseInt($("#from").val().split("-")[2]))),
+        to = new Date(Date.UTC(parseInt($("#to").val().split("-")[0]), parseInt($("#to").val().split("-")[1]) - 1, parseInt($("#to").val().split("-")[2])));
+
+    if (staffNumber && type && from && !isNaN(from.getTime()) && to && !isNaN(to.getTime())) {
+        $.ajax({
+            url: "/event/",
+            type: "DELETE",
+            data: {
+                staffNumber: staffNumber,
+                type: type,
+                from: from,
+                to: to
+            },
+            success: function(res) {
+                switch (res.status) {
+                    case 200:
+                        M.toast({
+                            html: res.message
+                        });
+                        $(".sidenav a[data-page='events']").click();
+                        break;
+                    case 400:
+                        M.toast({
+                            html: "An unknown error occured. Please try again later."
+                        });
+                        break;
+                    case 401:
+                        M.toast({
+                            html: "You are not authorised to use this system."
+                        });
+                        break;
+                    case 403:
+                        M.toast({
+                            html: "Your session has expired. Please log in again to continue."
+                        });
+                        break;
+                    case 500:
+                        M.toast({
+                            html: "The system could not contact the server. Please try again later."
+                        });
+                        break;
+                }
             }
-        }
-    });
+        });
+    }
+    else {
+        M.toast({
+            html: "Please fill out all fields with valid values."
+        });
+    }
+});
+
+$("#staffnumber select, #type select, #from, #to").change(function() {
+    $("#delete-event").fadeOut();
 });

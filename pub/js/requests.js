@@ -28,7 +28,13 @@ $(document).delegate("#approve, #reject", "click", function() {
                 M.toast({
                     html: "The request has been " + action + "."
                 });
-                $("[data-user=" + user + "][data-from=" + from + "][data-to=" + to + "]").parent().parent().fadeOut();
+                $("[data-user=" + user + "][data-from=" + from + "][data-to=" + to + "]").parent().parent().fadeOut(function() {
+                    $("[data-user=" + user + "][data-from=" + from + "][data-to=" + to + "]").parent().parent().remove();
+                    if ($("#requests tr").length === 0) {
+                        $("#requests").append("<tr id=\"none\" style=\"display: none;\"><td colspan=\"6\" class=\"center\"><em>No results found.</em></td></tr>");
+                        $("#none").fadeIn();
+                    }
+                });
                 break;
             case 400:
                 M.toast({
