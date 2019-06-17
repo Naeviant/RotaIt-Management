@@ -1133,7 +1133,7 @@ app.post("/rota/verify/", function(req, res) {
                                                             cost += ((user.hours - user.assigned) * user.pay);
                                                             break;
                                                         }
-                                                        if (event.type == "leave" && event.status == "approved" && event.staffNumber == user.staffNumber) {
+                                                        if (event.type == "leave" && (event.status == "approved" || event.status == "fixed") && event.staffNumber == user.staffNumber) {
                                                             done = true;
                                                             cost += ((user.hours - user.assigned) * user.pay);
                                                             errors.information.push((user.hours - user.assigned) + " hours of annual leave used by " + user.firstName + " " + user.lastName +  ".");
@@ -1157,14 +1157,19 @@ app.post("/rota/verify/", function(req, res) {
                                                             n = 0;
                                                         for (var shift of req.body.shifts) {
                                                             if (new Date(shift.start).getUTCDay() === days.indexOf(day)) {
-                                                                var s = new Date(1970, 0, 1, new Date(shift.start).getUTCHours(), new Date(shift.start).getUTCMinutes()),
-                                                                    e = new Date(1970, 0, 1, new Date(shift.end).getUTCHours(), new Date(shift.end).getUTCMinutes());                    
-                                                                if (s.getTime() <= d.getTime() && e.getTime() > d.getTime()) {
+                                                                var s = new Date(shift.start),
+                                                                    e = new Date(shift.end);
+                                                                s.setUTCFullYear(1970, 0, 1);
+                                                                e.setUTCFullYear(1970, 0, 1);
+                                                                if (e.getTime() < s.getTime()) {
+                                                                    e.setUTCDate(2);
+                                                                }    
+                                                                if (s.getTime() <= d.getTime() && e.getTime() >= d.getTime()) {
                                                                     n += 1;
                                                                 }
                                                             }
                                                         }
-                                                        if (n === 0 && new Date(1970, 0, 1, d.getUTCHours(), d.getUTCMinutes()).getTime() !== week[day].closedCustomers.getTime()) {
+                                                        if (n === 0 && d.getTime() !== week[day].closedCustomers.getTime()) {
                                                             errors.critical.push("No staff available on " + fulldays[days.indexOf(day)] + " at " + time + ".");
                                                         }
                                                         else if (n === 1) {
@@ -1197,17 +1202,24 @@ app.post("/rota/verify/", function(req, res) {
                                                         after = false;
                                                     for (var shift of req.body.shifts) {
                                                         if (new Date(shift.start).getUTCDay() === days.indexOf(day)) {
-                                                            if (new Date(1970, 0, 1, new Date(shift.start).getUTCHours(), new Date(shift.start).getUTCMinutes()).getTime() <= beforeOpen) {
+                                                            var s = new Date(shift.start),
+                                                                e = new Date(shift.end);
+                                                            s.setUTCFullYear(1970, 0, 1);
+                                                            e.setUTCFullYear(1970, 0, 1);  
+                                                            if (e.getTime() < s.getTime()) {
+                                                                e.setUTCDate(2);
+                                                            }  
+                                                            if (s.getTime() <= beforeOpen) {
                                                                 before = true;
                                                             }
-                                                            if (new Date(1970, 0, 1, new Date(shift.end).getUTCHours(), new Date(shift.end).getUTCMinutes()).getTime() >= afterClose) {
+                                                            if (e.getTime() >= afterClose) {
                                                                 after = true;
                                                             }
                                                             var user = team[team.map(function(x) { return x.staffNumber; }).indexOf(shift.staffNumber)];
-                                                            if (new Date(1970, 0, 1, new Date(shift.start).getUTCHours(), new Date(shift.start).getUTCMinutes()).getTime() < staffOpen) {
+                                                            if (s.getTime() < staffOpen) {
                                                                 errors.critical.push("Shift assigned to " + user.firstName + " " + user.lastName + " on " + fulldays[days.indexOf(day)] + " starts before store opened.");
                                                             }
-                                                            if (new Date(1970, 0, 1, new Date(shift.end).getUTCHours(), new Date(shift.end).getUTCMinutes()).getTime() > staffClose) {
+                                                            if (e > staffClose) {
                                                                 errors.critical.push("Shift assigned to " + user.firstName + " " + user.lastName + " on " + fulldays[days.indexOf(day)] + " ends after store closed.");
                                                             }
                                                         }
@@ -1415,7 +1427,7 @@ app.post("/rota/save/", function(req, res) {
                                                             }
                                                             for (var event of events) {
                                                                 if (event.staffNumber == user.staffNumber) {
-                                                                    if (event.type == "leave" && event.status == "approved") {
+                                                                    if (event.type == "leave" && (event.status == "approved" || event.status == "fixed")) {
                                                                         var difference = user.hours - (standard + premium);
                                                                         standard += difference;
                                                                         notices.push("You will use " + difference + " hours of annual leave in this week.")
@@ -1941,6 +1953,12 @@ app.post("/week/", function(req, res) {
                                 req.body[key].closedCustomers = new Date(Date.UTC(1970, 0, 1, parseInt(req.body[key].closedCustomers.split(":")[0]), parseInt(req.body[key].closedCustomers.split(":")[1])));
                                 req.body[key].openStaff = new Date(Date.UTC(1970, 0, 1, parseInt(req.body[key].openStaff.split(":")[0]), parseInt(req.body[key].openStaff.split(":")[1])));
                                 req.body[key].closedStaff = new Date(Date.UTC(1970, 0, 1, parseInt(req.body[key].closedStaff.split(":")[0]), parseInt(req.body[key].closedStaff.split(":")[1])));
+                                if (req.body[key].closedCustomers < req.body[key].openCustomers) {
+                                    req.body[key].closedCustomers.setUTCDate(2);
+                                }
+                                if (req.body[key].closedStaff < req.body[key].openStaff) {
+                                    req.body[key].closedStaff.setUTCDate(2);
+                                }
                                 if (isNaN(req.body[key].openCustomers.getTime()) || isNaN(req.body[key].closedCustomers.getTime()) || isNaN(req.body[key].openStaff.getTime()) || isNaN(req.body[key].closedStaff.getTime())) {
                                     invalid = true;
                                 }
