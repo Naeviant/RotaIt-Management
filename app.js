@@ -1518,13 +1518,16 @@ app.post("/staff/", function(req, res) {
                                     });
                                     return;
                                 } 
-                                // Send Email to User
-                                sendmail({
-                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                    to: req.body.email,
-                                    subject: "Your details have been updated.",
-                                    html: nunjucksEnv.render("./emails/details.html", { user: req.body, type: "updated" })
-                                });
+                                // Check if Emails are Enabled
+                                if (config.app.emails === true) {
+                                    // Send Email to User
+                                    sendmail({
+                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                        to: req.body.email,
+                                        subject: "Your details have been updated.",
+                                        html: nunjucksEnv.render("./emails/details.html", { user: req.body, type: "updated" })
+                                    });
+                                }
                                 // Send Success Response
                                 res.send({
                                     status: 200,
@@ -1552,13 +1555,16 @@ app.post("/staff/", function(req, res) {
                                     });
                                     return;
                                 } 
-                                // Send Email to User
-                                sendmail({
-                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                    to: req.body.email,
-                                    subject: "Your details have been set.",
-                                    html: nunjucksEnv.render("./emails/details.html", { user: req.body, type: "set" })
-                                });
+                                // Check if Emails are Enabled
+                                if (config.app.emails === true) {
+                                    // Send Email to User
+                                    sendmail({
+                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                        to: req.body.email,
+                                        subject: "Your details have been set.",
+                                        html: nunjucksEnv.render("./emails/details.html", { user: req.body, type: "set" })
+                                    });
+                                }
                                 // Send Success Response
                                 res.send({
                                     status: 200,
@@ -2226,13 +2232,16 @@ app.post("/rota/save/", function(req, res) {
                                                             notices.push("You will be paid £" + pay.toFixed(2) + " in this week.");
                                                             // Check if Email Required
                                                             if (shifts[0] || notices.length > 1) {
-                                                                // Send Email to User
-                                                                sendmail({
-                                                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                                                    to: user.email,
-                                                                    subject: "Your shifts for Week " + req.body.weekNumber + " have been published.",
-                                                                    html: nunjucksEnv.render("./emails/published.html", { weekNumber: req.body.weekNumber, firstName: user.firstName, shifts: shifts, notices: notices })
-                                                                });
+                                                                // Check if Emails are Enabled
+                                                                if (config.app.emails === true) {
+                                                                    // Send Email to User
+                                                                    sendmail({
+                                                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                                                        to: user.email,
+                                                                        subject: "Your shifts for Week " + req.body.weekNumber + " have been published.",
+                                                                        html: nunjucksEnv.render("./emails/published.html", { weekNumber: req.body.weekNumber, firstName: user.firstName, shifts: shifts, notices: notices })
+                                                                    });
+                                                                }
                                                             }
                                                         });
                                                     });
@@ -2470,13 +2479,16 @@ app.post("/requests/", function(req, res) {
                             } 
                             // Check if User Object has Email Address
                             if (user && user.email) {
-                                // Send Email to User
-                                sendmail({
-                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                    to: user.email,
-                                    subject: "Your annual leave request has been " + req.body.action + ".",
-                                    html: nunjucksEnv.render("./emails/request.html", { firstName: user.firstName, action: req.body.action, from: req.body.from, to: req.body.to, comment: req.body.comment })
-                                });
+                                // Check if Emails are Enabled
+                                if (config.app.emails === true) {
+                                    // Send Email to User
+                                    sendmail({
+                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                        to: user.email,
+                                        subject: "Your annual leave request has been " + req.body.action + ".",
+                                        html: nunjucksEnv.render("./emails/request.html", { firstName: user.firstName, action: req.body.action, from: req.body.from, to: req.body.to, comment: req.body.comment })
+                                    });
+                                }
                             }
                             // Send Success Response
                             res.send({
@@ -2580,13 +2592,16 @@ app.post("/event/", function(req, res) {
                                 } 
                                 // Check if User Object has Email Address
                                 if (user && user.email) {
-                                    // Send Email to User
-                                    sendmail({
-                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                        to: user.email,
-                                        subject: "A new " + req.body.type +  " event has been created for you.",
-                                        html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
-                                    });
+                                    // Check if Emails are Enabled
+                                    if (config.app.emails === true) {
+                                        // Send Email to User
+                                        sendmail({
+                                            from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                            to: user.email,
+                                            subject: "A new " + req.body.type +  " event has been created for you.",
+                                            html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
+                                        });
+                                    }
                                 }
                                 // Get Old User's Data from Database
                                 req.db.collection("users").findOne({
@@ -2602,13 +2617,16 @@ app.post("/event/", function(req, res) {
                                     }
                                     // Check if User Object has Email Address
                                     if (user && user.email) {
-                                        // Send Email to User
-                                        sendmail({
-                                            from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                            to: user.email,
-                                            subject: "Your " + req.body.type +  " event has been deleted.",
-                                            html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
-                                        });
+                                        // Check if Emails are Enabled
+                                        if (config.app.emails === true) {
+                                            // Send Email to User
+                                            sendmail({
+                                                from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                                to: user.email,
+                                                subject: "Your " + req.body.type +  " event has been deleted.",
+                                                html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
+                                            });
+                                        }
                                     }
                                 });
                                 // Send Success Response
@@ -2633,13 +2651,16 @@ app.post("/event/", function(req, res) {
                                 } 
                                 // Check if User Object has Email Address
                                 if (user && user.email) {
-                                    // Send Email to User
-                                    sendmail({
-                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                        to: user.email,
-                                        subject: "A new " + req.body.type +  " event has been created for you.",
-                                        html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
-                                    });
+                                    // Check if Emails are Enabled
+                                    if (config.app.emails === true) {
+                                        // Send Email to User
+                                        sendmail({
+                                            from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                            to: user.email,
+                                            subject: "A new " + req.body.type +  " event has been created for you.",
+                                            html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "created" })
+                                        });
+                                    }
                                 }
                                 // Send Success Response 
                                 res.send({
@@ -2791,13 +2812,16 @@ app.delete("/event/", function(req, res) {
                             }
                             // Check if User Object has Email Address
                             if (user && user.email) {
-                                // Send Email to User
-                                sendmail({
-                                    from: "RotaIt Notifier <no-reply@rotait.xyz>",
-                                    to: user.email,
-                                    subject: "Your " + req.body.type +  " event has been deleted.",
-                                    html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
-                                });
+                                // Check if Emails are Enabled
+                                if (config.app.emails === true) {
+                                    // Send Email to User
+                                    sendmail({
+                                        from: "RotaIt Notifier <no-reply@rotait.xyz>",
+                                        to: user.email,
+                                        subject: "Your " + req.body.type +  " event has been deleted.",
+                                        html: nunjucksEnv.render("./emails/event.html", { firstName: user.firstName, type: req.body.type, from: req.body.from, to: req.body.to, status: "deleted" })
+                                    });
+                                }
                             }
                             // Send Success Response
                             res.send({
