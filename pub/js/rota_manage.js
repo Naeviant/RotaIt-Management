@@ -75,204 +75,212 @@ function build(state) {
     return shifts;
 }
 
-// Colour Rota Cells and Enable/Disable Inputs
-function colour() {
+// Define Variables to Hold Week and Event Data
+var week = {},
+    events = {};
+
+// Get Week and Event Data from Server
+function makeRequest() {
     // Get Week Data from Server
     $.get("/week/", {
         week: $("#header").data("week"),
         year: $("#header").data("year")
     }, function(res) {
-        // Check Request was Successful
-        if (res.status === 200) {
-            // Get Event Data from Server
-            $.get("/events/", {
-                week: $("#header").data("week"),
-                year: $("#header").data("year")
-            }, function(resp) {
-                // Check Request was Successful
-                if (resp.status === 200) {
-                    // Define Keys of Week Object in Array
-                    var keys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-                    // Remove All Existing Colours
-                    $("#rota tbody tr td").removeClass("yellow orange pink green purple blue red grey black hashed lighten-5");
-                    // Loop Through Each Day
-                    for (var j = 0; j < 7; j++) {
-                        // Remove Existing Header Labels
-                        $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html().replace("(BH)", ""));
-                        $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html().replace("(C)", ""));
-                        // Check if Day is a Bank Holiday
-                        if (res.week[keys[j]].bankHoliday === true) {
-                            // Add (BH) Label to Header
-                            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html() + " (BH)");
+        // Get Event Data from Server
+        $.get("/events/", {
+            week: $("#header").data("week"),
+            year: $("#header").data("year")
+        }, function(resp) {
+            // Set Week and Event Data Variables
+            week = res;
+            events = resp;
+            colour(week, events);
+        });
+    });
+}
+
+// Colour Rota Cells and Enable/Disable Inputs
+function colour(res, resp) {
+    // Check Requests were Successful
+    if (res.status === 200 && resp.status === 200) {
+        // Define Keys of Week Object in Array
+        var keys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+        // Remove All Existing Colours
+        $("#rota tbody tr td").removeClass("yellow orange pink green purple blue red grey black hashed lighten-5");
+        // Loop Through Each Day
+        for (var j = 0; j < 7; j++) {
+            // Remove Existing Header Labels
+            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html().replace("(BH)", ""));
+            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html().replace("(C)", ""));
+            // Check if Day is a Bank Holiday
+            if (res.week[keys[j]].bankHoliday === true) {
+                // Add (BH) Label to Header
+                $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html() + " (BH)");
+            }
+            // Check if Store is Closed on Day
+            if (res.week[keys[j]].closed === true) {
+                // Add (C) Label to Header
+                $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html() + " (C)");
+                // Disable All Inputs for Day
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").attr("disabled", true);
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").attr("disabled", true);
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").attr("disabled", true);
+                // Clear Inputs for Day
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").val("");
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").val("");
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").val("");
+                // Colour Cells Hashed Black for Day
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ")").addClass("hashed black");
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ")").addClass("hashed black");
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ")").addClass("hashed black");
+            }
+            else {
+                // Enable All Inputs for Day
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").attr("disabled", false);
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").attr("disabled", false);
+                $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").attr("disabled", false);
+            }
+        }
+        // Loop Through Each Row of Table
+        $("#rota tbody tr").each(function(i) {
+            // Get Staff Number from Current Row
+            var staffNumber = $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(1)").html().split(" <br> ")[1];
+
+            // Loop Through Each Day
+            for (var event of resp.events) {
+                // Loop Through Days
+                for (var j = 1; j <= 7; j++) {
+                    // Define Timestamp for Current Day
+                    var boundary = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[0]))).getTime();
+                    // Check if Day is Within Event Dates
+                    if (boundary >= event.from && boundary <= event.to && event.staffNumber == staffNumber) {
+                        // Check if Event is Administrative or Approved Annual Leave
+                        if (event.type != "interviewing" && event.type != "course" && (event.type != "leave" || event.status == "approved" || event.status == "fixed")) {
+                            // Disable Inputs for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ") input").attr("disabled", true);
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ") input").attr("disabled", true);
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ") input").attr("disabled", true);
                         }
-                        // Check if Store is Closed on Day
-                        if (res.week[keys[j]].closed === true) {
-                            // Add (C) Label to Header
-                            $("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html($("#rota thead tr:nth-of-type(1) td:nth-of-type(" + (j + 2) + ")").html() + " (C)");
-                            // Disable All Inputs for Day
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").attr("disabled", true);
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").attr("disabled", true);
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").attr("disabled", true);
-                            // Clear Inputs for Day
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").val("");
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").val("");
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").val("");
-                            // Colour Cells Hashed Black for Day
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ")").addClass("hashed black");
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ")").addClass("hashed black");
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ")").addClass("hashed black");
+                        else if (event.type == "interviewing" || event.type == "course") {
+                            // Colour Cells Green for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("green lighten-5");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("green lighten-5");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("green lighten-5");
                         }
-                        else {
-                            // Enable All Inputs for Day
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 2) + ") input").attr("disabled", false);
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 3) + ") input").attr("disabled", false);
-                            $("#rota tbody td:nth-of-type(" + ((3 * j) + 4) + ") input").attr("disabled", false);
+                        // Check if Event is Sickess or Maternity/Paternity Leave
+                        if (event.type == "sickness" || event.type == "maternity" || event.type == "paternity") {
+                            // Colour Cells Hashed Purple for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed purple");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed purple");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed purple");
+                        }
+                        // Check if Event is Approved Annual Leave
+                        if (event.type == "leave" && (event.status == "approved" || event.status == "fixed")) {
+                            // Colour Cells Hashed Blue for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed blue");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed blue");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed blue");
+                        }
+                        // Check if Event is a Suspension
+                        if (event.type == "suspension") {
+                            // Colour Cells Hashed Red for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed red");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed red");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed red");
+                        }
+                        // Check if Event is Working Elsewhere
+                        if (event.type == "elsewhere") {
+                            // Colour Cells Hashed Grey for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed grey");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed grey");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed grey");
                         }
                     }
-                    // Loop Through Each Row of Table
-                    $("#rota tbody tr").each(function(i) {
-                        // Get Staff Number from Current Row
-                        var staffNumber = $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(1)").html().split(" <br> ")[1];
-
-                        // Loop Through Each Day
-                        for (var event of resp.events) {
-                            // Loop Through Days
-                            for (var j = 1; j <= 7; j++) {
-                                // Define Timestamp for Current Day
-                                var boundary = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + j + ")").html().split("/")[0]))).getTime();
-                                // Check if Day is Within Event Dates
-                                if (boundary >= event.from && boundary <= event.to && event.staffNumber == staffNumber) {
-                                    // Check if Event is Administrative or Approved Annual Leave
-                                    if (event.type != "interviewing" && event.type != "course" && (event.type != "leave" || event.status == "approved" || event.status == "fixed")) {
-                                        // Disable Inputs for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ") input").attr("disabled", true);
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ") input").attr("disabled", true);
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ") input").attr("disabled", true);
-                                    }
-                                    else if (event.type == "interviewing" || event.type == "course") {
-                                        // Colour Cells Green for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("green lighten-5");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("green lighten-5");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("green lighten-5");
-                                    }
-                                    // Check if Event is Sickess or Maternity/Paternity Leave
-                                    if (event.type == "sickness" || event.type == "maternity" || event.type == "paternity") {
-                                        // Colour Cells Hashed Purple for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed purple");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed purple");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed purple");
-                                    }
-                                    // Check if Event is Approved Annual Leave
-                                    if (event.type == "leave" && (event.status == "approved" || event.status == "fixed")) {
-                                        // Colour Cells Hashed Blue for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed blue");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed blue");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed blue");
-                                    }
-                                    // Check if Event is a Suspension
-                                    if (event.type == "suspension") {
-                                        // Colour Cells Hashed Red for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed red");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed red");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed red");
-                                    }
-                                    // Check if Event is Working Elsewhere
-                                    if (event.type == "elsewhere") {
-                                        // Colour Cells Hashed Grey for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 - 1) + ")").addClass("hashed grey");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3) + ")").addClass("hashed grey");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j * 3 + 1) + ")").addClass("hashed grey");
-                                    }
-                                }
+                }
+            }
+            var n = 0;
+            // Loop Through Each Column of Row
+            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td").each(function(j) {
+                // Ignore First (Name and Staff Number)
+                if (j === 0) {
+                    return true;
+                }
+                // Work Out Current Day as String
+                var today = keys[new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]))).getDay()];
+                // Handle Sundays
+                if (today == "sun") {
+                    // Focus on 3rd (Breaks) Cell
+                    if (j % 3 === 0) {
+                        // Check for Valid Values in All Inputs
+                        if ($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j - 1) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().trim()) {
+                            // Check if Cells are Already Coloured
+                            if (!$("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").hasClass("lighten-5")) {
+                                // Colour Cells Orange for Staff Member for Day
+                                $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j - 1) + ")").addClass("orange lighten-5");
+                                $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ")").addClass("orange lighten-5");
+                                $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").addClass("orange lighten-5");
                             }
                         }
-                        var n = 0;
-                        // Loop Through Each Column of Row
-                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td").each(function(j) {
-                            // Ignore First (Name and Staff Number)
-                            if (j === 0) {
-                                return true;
-                            }
-                            // Work Out Current Day as String
-                            var today = keys[new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]))).getDay()];
-                            // Handle Sundays
-                            if (today == "sun") {
-                                // Focus on 3rd (Breaks) Cell
-                                if (j % 3 === 0) {
-                                    // Check for Valid Values in All Inputs
-                                    if ($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j - 1) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().trim()) {
-                                        // Check if Cells are Already Coloured
-                                        if (!$("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").hasClass("lighten-5")) {
-                                            // Colour Cells Orange for Staff Member for Day
-                                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j - 1) + ")").addClass("orange lighten-5");
-                                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ")").addClass("orange lighten-5");
-                                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").addClass("orange lighten-5");
-                                        }
-                                    }
-                                    // Proceed to Next Day
-                                    n++;
-                                }
-                                // Proceed to Next Iteration
-                                return true;
-                            }
-                            // Work Out Contents of Cell
-                            if (j % 3 === 1) {
-                                // Get Shift Start and Store Opening Time6 for Day
-                                var start = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[1]))).getTime(),
-                                    open = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]))).getTime() + new Date(res.week[today]["openCustomers"]).getTime();
-                                // Check if the Shift Starts at or Before Store Opening
-                                if (start <= open) {
-                                    // Check for Valid Values in All Inputs
-                                    if ($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 2) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 3) + ") input").val().trim()) {
-                                        // Colour Cells Yellow for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").addClass("yellow lighten-5");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 2) + ")").addClass("yellow lighten-5");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 3) + ")").addClass("yellow lighten-5");
-                                    }
-                                }
-                            }
-                            else if (j % 3 === 2) {
-                                // Get Shift End and Store Closing Time for Day
-                                var end = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[1]))).getTime(),
-                                    closed = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]))).getTime() + new Date(res.week[today]["closedCustomers"]).getTime();
-                                // Check if the Shift Ends at or After Store Closing
-                                if (end >= closed) {
-                                    // Check for Valid Values in All Inputs
-                                    if ($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 2) + ") input").val().trim()) {
-                                        // Colour Cells Pink for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ")").addClass("pink lighten-5");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").addClass("pink lighten-5");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 2) + ")").addClass("pink lighten-5");
-                                    }
-                                }
-                            }
-                            else if (j % 3 === 0) {
-                                // Check for Valid Values in All Inputs
-                                if ($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j - 1) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().trim()) {
-                                    // Check if Cells are Already Coloured
-                                    if (!$("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").hasClass("lighten-5")) {
-                                        // Colour Cells Orange for Staff Member for Day
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j - 1) + ")").addClass("orange lighten-5");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ")").addClass("orange lighten-5");
-                                        $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").addClass("orange lighten-5");
-                                    }
-                                }
-                                // Proceed to Next Day
-                                n++;
-                            }
-                        });
-                    });
+                        // Proceed to Next Day
+                        n++;
+                    }
+                    // Proceed to Next Iteration
+                    return true;
+                }
+                // Work Out Contents of Cell
+                if (j % 3 === 1) {
+                    // Get Shift Start and Store Opening Time6 for Day
+                    var start = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[1]))).getTime(),
+                        open = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]))).getTime() + new Date(res.week[today]["openCustomers"]).getTime();
+                    // Check if the Shift Starts at or Before Store Opening
+                    if (start <= open) {
+                        // Check for Valid Values in All Inputs
+                        if ($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 2) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 3) + ") input").val().trim()) {
+                            // Colour Cells Yellow for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").addClass("yellow lighten-5");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 2) + ")").addClass("yellow lighten-5");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 3) + ")").addClass("yellow lighten-5");
+                        }
+                    }
+                }
+                else if (j % 3 === 2) {
+                    // Get Shift End and Store Closing Time for Day
+                    var end = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[1]))).getTime(),
+                        closed = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]))).getTime() + new Date(res.week[today]["closedCustomers"]).getTime();
+                    // Check if the Shift Ends at or After Store Closing
+                    if (end >= closed) {
+                        // Check for Valid Values in All Inputs
+                        if ($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 2) + ") input").val().trim()) {
+                            // Colour Cells Pink for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ")").addClass("pink lighten-5");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").addClass("pink lighten-5");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 2) + ")").addClass("pink lighten-5");
+                        }
+                    }
+                }
+                else if (j % 3 === 0) {
+                    // Check for Valid Values in All Inputs
+                    if ($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j - 1) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ") input").val().trim() && $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().trim()) {
+                        // Check if Cells are Already Coloured
+                        if (!$("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").hasClass("lighten-5")) {
+                            // Colour Cells Orange for Staff Member for Day
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j - 1) + ")").addClass("orange lighten-5");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j) + ")").addClass("orange lighten-5");
+                            $("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ")").addClass("orange lighten-5");
+                        }
+                    }
+                    // Proceed to Next Day
+                    n++;
                 }
             });
-
-        }
-        else {
-            // Produce Error Message in Toast
-            M.toast({
-                html: "An unknown error occurred. The existing rota could not be fully loaded."
-            });
-        }
-    });
+        });
+    }
+    else {
+        // Produce Error Message in Toast
+        M.toast({
+            html: "An unknown error occurred. The existing rota could not be fully loaded."
+        });
+    }
 }
 
 // Initialise Rota
@@ -315,8 +323,8 @@ $(document).ready(function() {
                         }
                     }
                 });
-                // Colour Rota Cells and Enable/Disable Inputs
-                colour();
+                // Get Week and Event Data from Server - Then Colour Rota Cells and Enable/Disable Inputs
+                makeRequest();
                 // Remove Loading Circle
                 $("#loading").fadeOut("fast", function() {
                     // Show Rota
@@ -352,7 +360,7 @@ $(document).ready(function() {
 // Handle Input Updates
 $(document).delegate("#rota input", "change", function() {
     // Colour Rota Cells and Enable/Disable Inputs
-    colour();
+    colour(week, events);
 });
 
 // Handle Change Week Button
@@ -671,8 +679,10 @@ $("#save-week").click(function() {
             // Produce Result Message in Toast
             switch (res.status) {
                 case 200:
+                    // Close Popup
                     $("#modal-settings").modal("close");
-                    colour();
+                    // Get Week and Event Data from Server - Then Colour Rota Cells and Enable/Disable Inputs
+                    makeRequest();
                     M.toast({
                         html: "The week settings have been saved."
                     });
