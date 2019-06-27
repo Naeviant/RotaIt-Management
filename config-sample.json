@@ -1,8 +1,6 @@
 {
     "app": {
         "port": 8081,
-        "secret": "",
-        "emails": true,
-        "db": "rotait"
+        "secret": ""
     }
 }
