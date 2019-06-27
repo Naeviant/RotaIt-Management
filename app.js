@@ -1408,13 +1408,10 @@ app.get("/rota/export/", function(req, res) {
     }
 });
 
-// Get Partial - 404
-app.get("/partial/*", function(req, res) {
-    // Send Partial
-    res.render("partials/error", {
-        code: 404,
-        message: "The page you requested was not found."
-    });
+// Handle 404 Errors
+app.get("*", function(req, res) {
+    // Redirect Back to Root Page
+    res.redirect("/");
 });
 
 // Accept Login Details
