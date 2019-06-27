@@ -66,7 +66,7 @@ app.use(session({
 }));
 
 // Gonfigure Database
-app.use(mongodb("mongodb://localhost/rotait"));
+app.use(mongodb("mongodb://localhost/" + config.app.db));
 
 // App Local Variables
 app.locals = {
