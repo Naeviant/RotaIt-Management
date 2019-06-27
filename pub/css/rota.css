@@ -1,14 +1,21 @@
+/* Center All Cells */
 th, td {
     text-align: center;
     padding: 4px;
 }
+
+/* Center Inputs and Limit Width */
 input {
     max-width: 45px;
     text-align: center;
 }
+
+/* Remove Clear Button from Inputs */
 ::-webkit-clear-button {
     display: none;
 }
+
+/* Custom Hashed Colours */
 .hashed.blue {
     background: repeating-linear-gradient(
       45deg,

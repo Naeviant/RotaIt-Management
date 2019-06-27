@@ -1,14 +1,19 @@
+// Unbind Events Later in Script
 $(document).undelegate("#cancel", "click");
 $(document).undelegate("#save", "click");
 $(document).undelegate("#reset", "click");
 $(document).undelegate("#delete", "click");
 $(document).off("keypress");
 
+// Handle Cancel Button
 $(document).delegate("#cancel", "click", function() {
+    // Click Team Button in Sidebar (Trigger Partial Change)
     $(".sidenav a[data-page='staff']").click();
 });
 
+// Handle Save Button
 $(document).delegate("#save", "click", function() {
+    // Get Data from User Inputs & HTML
     var newUser = ($(this).data("new") == "true"), 
         firstName = $("#firstname").val(),
         lastName = $("#lastname").val(),
@@ -57,7 +62,9 @@ $(document).delegate("#save", "click", function() {
             }
         };
 
+    // Check Parameters are Valid
     if (firstName && lastName && dob && staffNumber && jobRole && email && hours && !isNaN(parseFloat(hours)) && maxOvertime && !isNaN(parseFloat(maxOvertime)) && pay && !isNaN(parseFloat(pay)) && (!newUser || password)) {
+        // Send Staff Data to Server
         $.post("/staff/", {
             newUser: newUser,
             firstName: firstName,
@@ -72,8 +79,10 @@ $(document).delegate("#save", "click", function() {
             password: password,
             availability: availability
         }, function(res) {
+            // Produce Result Message in Toast
             switch (res.status) {
                 case 200:
+                    // Click Team Button in Sidebar (Trigger Partial Change)
                     $(".sidenav a[data-page='staff']").click();
                     break;
                 case 400:
@@ -100,24 +109,30 @@ $(document).delegate("#save", "click", function() {
         });
     }
     else {
+        // Produce Error Message in Toast
         M.toast({
             html: "Please fill out all fields with valid values."
         });
     }
 });
 
+// Handle Password Reset Button
 $("#reset").click(function() {
+    // Get Data from User Inputs
     var password = $("#password").val();
 
+    // Check Parameters are Valid
     if (password) {
+        // Send Password Reset Request to Server
         $.post("/password/", {
             staffNumber: $(this).data("user"),
             password: password
         }, function(res) {
+            // Produce Result Message in Toast
             switch (res.status) {
                 case 200:
+                    // Close Password Reset Modal
                     $("#modal-password").modal("close");
-                    $(".sidenav a[data-page='staff']").click();
                     break;
                 case 400:
                     M.toast({
@@ -143,13 +158,16 @@ $("#reset").click(function() {
         });
     }
     else {
+        // Produce Error Message in Toast
         M.toast({
             html: "Please specify a new password."
         });
     }
 });
 
+// Handle Delete User Button
 $("#delete").click(function() {
+    // Send User Deletion Request to Server
     $.ajax({
         url: "/staff/",
         type: "DELETE",
@@ -157,8 +175,10 @@ $("#delete").click(function() {
             staffNumber: $(this).data("user")
         },
         success: function(res) {
+            // Produce Result Message in Toast
             switch (res.status) {
                 case 200:
+                    // Click Team Button in Sidebar (Trigger Partial Change)
                     $(".sidenav a[data-page='staff']").click();
                     break;
                 case 400:
