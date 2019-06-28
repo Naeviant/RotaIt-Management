@@ -22,22 +22,23 @@
                 <div class="row" style="margin: 0;">
                     <div class="col s12 center">
                         <h4 id="header" data-week="{{ week.weekNumber }}" data-year="{{ week.year }}">
-                            <a href="#!" id="change" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Change Week" style="margin-left: 5px;"><i class="material-icons">clear</i></a>
-                            <a href="#!" id="previous" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Previous Week" style="margin-left: 5px;"><i class="material-icons">arrow_back</i></a>
-                            <a href="#!" id="next" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Next Week" style="margin-left: 5px;"><i class="material-icons">arrow_forward</i></a>
-                            Rota for Week {{ week.weekNumber }} ({{ week.year }})
-                            <a href="#modal-export" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Export Rotas" style="margin-left: 5px;"><i class="material-icons">forward</i></a>
+                            <span class="hide-on-med-and-up" style="display: block; margin-bottom: 5px;">Rota for Week {{ week.weekNumber }} ({{ week.year }})</span>
+                            <a href="#!" id="change" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Change Week" style="margin-left: 3px;"><i class="material-icons">clear</i></a>
+                            <a href="#!" id="previous" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Previous Week" style="margin-left: 3px;"><i class="material-icons">arrow_back</i></a>
+                            <a href="#!" id="next" class="btn-floating light-blue waves-effect waves-light tooltipped left" data-position="bottom" data-tooltip="Next Week" style="margin-left: 3px;"><i class="material-icons">arrow_forward</i></a>
+                            <span class="hide-on-small-only">Rota for Week {{ week.weekNumber }} ({{ week.year }})</span>
+                            <a href="#modal-export" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger hide-on-small-only" data-position="bottom" data-tooltip="Export Rotas" style="margin-left: 3px;"><i class="material-icons">forward</i></a>
                             {% if not past %}
-                                <a href="#!" id="publish" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Publish" style="margin-left: 5px;"><i class="material-icons">publish</i></a>
+                                <a href="#!" id="publish" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Publish" style="margin-left: 3px;"><i class="material-icons">publish</i></a>
                                 {% if week.published === false %}
-                                    <a href="#!" id="save" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Save" style="margin-left: 5px;"><i class="material-icons">save</i></a>
+                                    <a href="#!" id="save" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Save" style="margin-left: 3px;"><i class="material-icons">save</i></a>
                                 {% endif %}
-                                <a href="#!" id="verify" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Verify" style="margin-left: 5px;"><i class="material-icons">done</i></a>
-                                <a href="#modal-settings" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Week Settings" style="margin-left: 5px;"><i class="material-icons">settings</i></a>
+                                <a href="#!" id="verify" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Verify" style="margin-left: 3px;"><i class="material-icons">done</i></a>
+                                <a href="#modal-settings" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Week Settings" style="margin-left: 3px;"><i class="material-icons">settings</i></a>
                             {% endif %}
-                            <a href="#modal-colours" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Colour Key" style="margin-left: 5px;"><i class="material-icons">format_color_fill</i></a>
+                            <a href="#modal-colours" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Colour Key" style="margin-left: 3px;"><i class="material-icons">format_color_fill</i></a>
                             {% if not past %}
-                                <a href="#modal-team" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Team Info" style="margin-left: 5px;"><i class="material-icons">face</i></a>
+                                <a href="#modal-team" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger" data-position="bottom" data-tooltip="Team Info" style="margin-left: 3px;"><i class="material-icons">face</i></a>
                             {% endif %}
                         </h4>
                     </div>
@@ -215,15 +216,18 @@
                         <th></th>
                         <th>Store Closed</th>
                         <th>Bank Holiday</th>
-                        <th>Open (Customers)</th>
-                        <th>Close (Customers)</th>
+                        <th class="hide-on-small-only">Open (Customers)</th>
+                        <th class="hide-on-med-and-up">Open (Cust.)</th>
+                        <th class="hide-on-small-only">Close (Customers)</th>
+                        <th class="hide-on-med-and-up">Close (Cust.)</th>
                         <th>Open (Staff)</th>
                         <th>Close (Staff)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <th>Sunday</th>
+                        <th class="hide-on-small-only">Sunday</th>
+                        <th class="hide-on-med-and-up">Su</th>
                         <td>
                             <label>
                                 <input id="week-sun-closed" type="checkbox" class="filled-in" {% if week.sun.closed %} checked {% endif %} />
@@ -242,7 +246,8 @@
                         <td><input id="week-sun-closed-staff" type="time" value="{{ week.sun.closedStaff|time }}"></td>
                     </tr>
                     <tr>
-                        <th>Monday</th>
+                        <th class="hide-on-small-only">Monday</th>
+                        <th class="hide-on-med-and-up">M</th>
                         <td>
                             <label>
                                 <input id="week-mon-closed" type="checkbox" class="filled-in" {% if week.mon.closed %} checked {% endif %} />
@@ -261,7 +266,8 @@
                         <td><input id="week-mon-closed-staff" type="time" value="{{ week.mon.closedStaff|time }}"></td>
                     </tr>
                     <tr>
-                        <th>Tuesday</th>
+                        <th class="hide-on-small-only">Tuesday</th>
+                        <th class="hide-on-med-and-up">Tu</th>
                         <td>
                             <label>
                                 <input id="week-tue-closed" type="checkbox" class="filled-in" {% if week.tue.closed %} checked {% endif %} />
@@ -280,7 +286,8 @@
                         <td><input id="week-tue-closed-staff" type="time" value="{{ week.tue.closedStaff|time }}"></td>
                     </tr>
                     <tr>
-                        <th>Wednesday</th>
+                        <th class="hide-on-small-only">Wednesday</th>
+                        <th class="hide-on-med-and-up">W</th>
                         <td>
                             <label>
                                 <input id="week-wed-closed" type="checkbox" class="filled-in" {% if week.wed.closed %} checked {% endif %} />
@@ -299,7 +306,8 @@
                         <td><input id="week-wed-closed-staff" type="time" value="{{ week.wed.closedStaff|time }}"></td>
                     </tr>
                     <tr>
-                        <th>Thursday</th>
+                        <th class="hide-on-small-only">Thursday</th>
+                        <th class="hide-on-med-and-up">Th</th>
                         <td>
                             <label>
                                 <input id="week-thu-closed" type="checkbox" class="filled-in" {% if week.thu.closed %} checked {% endif %} />
@@ -318,7 +326,8 @@
                         <td><input id="week-thu-closed-staff" type="time" value="{{ week.thu.closedStaff|time }}"></td>
                     </tr>
                     <tr>
-                        <th>Friday</th>
+                        <th class="hide-on-small-only">Friday</th>
+                        <th class="hide-on-med-and-up">F</th>
                         <td>
                             <label>
                                 <input id="week-fri-closed" type="checkbox" class="filled-in" {% if week.fri.closed %} checked {% endif %} />
@@ -337,7 +346,8 @@
                         <td><input id="week-fri-closed-staff" type="time" value="{{ week.fri.closedStaff|time }}"></td>
                     </tr>
                     <tr>
-                        <th>Saturday</th>
+                        <th class="hide-on-small-only">Saturday</th>
+                        <th class="hide-on-med-and-up">Sa</th>
                         <td>
                             <label>
                                 <input id="week-sat-closed" type="checkbox" class="filled-in" {% if week.sat.closed %} checked {% endif %} />

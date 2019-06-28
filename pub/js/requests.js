@@ -9,6 +9,8 @@ $(document).delegate("#action", "click", function() {
     $("#approve, #reject").data("user", $(this).data("user"));
     $("#approve, #reject").data("from", $(this).data("from"));
     $("#approve, #reject").data("to", $(this).data("to"));
+    // Show User Comments on Small Devices
+    $("#user-comments").html($(this).data("comments"));
     // Clear Comments Input
     $("#comment").val("");
     // Update All Text Fields
