@@ -1,9 +1,17 @@
 // Unbind Events Later in Script
+$(document).off("ready");
 $(document).undelegate("#cancel", "click");
 $(document).undelegate("#save", "click");
 $(document).undelegate("#reset", "click");
 $(document).undelegate("#delete", "click");
 $(document).off("keypress");
+
+// Restrict Dates of Birth
+$(document).ready(function() {
+    var d = new Date();
+    $("#dob").attr("min", (d.getFullYear() - 100) + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2));
+    $("#dob").attr("max", (d.getFullYear() - 16) + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2));
+});
 
 // Handle Cancel Button
 $(document).delegate("#cancel", "click", function() {

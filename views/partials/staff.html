@@ -33,7 +33,7 @@
                                             <td class="hide-on-med-and-down">{{ staff.jobRole }}</td>
                                             <td class="hide-on-med-and-down">{{ staff.hours}}</td>
                                             <td>
-                                                <a id="edit" class="waves-effect waves-light btn light-blue tooltipped {% if staff.staffNumber == loggedin %} disabled {% endif %}" data-position="left" data-tooltip="Manage User" data-user="{{ staff.staffNumber }}"><i class="material-icons">build</i></a>
+                                                <a id="edit" class="waves-effect waves-light btn light-blue tooltipped {% if staff.manager === true %} disabled {% endif %}" data-position="left" data-tooltip="Manage User" data-user="{{ staff.staffNumber }}"><i class="material-icons">build</i></a>
                                             </td>
                                         </tr>
                                     {% endfor %}

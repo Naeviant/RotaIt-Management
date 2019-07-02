@@ -41,7 +41,7 @@ function build(state) {
                 shift.end = new Date(Date.UTC(parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[2]), parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[1]) - 1, parseInt($("#rota thead tr:nth-of-type(2) td:nth-of-type(" + (n + 1) + ")").html().split("/")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[0]), parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val().split(":")[1])));
             }
             else if (j % 3 === 0) {
-                // Ger Length of Breaks of Shift
+                // Get Length of Breaks of Shift
                 shift.breaks = parseInt($("#rota tbody tr:nth-of-type(" + (i + 1) + ") td:nth-of-type(" + (j + 1) + ") input").val());
                 n++;
             }
@@ -358,9 +358,51 @@ $(document).ready(function() {
 });
 
 // Handle Input Updates
-$(document).delegate("#rota input", "change", function() {
-    // Colour Rota Cells and Enable/Disable Inputs
-    colour(week, events);
+$(document).delegate("#rota input", "focusout", function() {
+    // Get Collection of Three Cells
+    var staffNumber = $(this).data("user"),
+        day = $(this).data("day"),
+        start = $("#rota td input[data-user='" + staffNumber +  "'][data-day='" + day +  "'][data-type='start'").parent(),
+        end = $("#rota td input[data-user='" + staffNumber +  "'][data-day='" + day +  "'][data-type='end'").parent(),
+        breaks = $("#rota td input[data-user='" + staffNumber +  "'][data-day='" + day +  "'][data-type='breaks'").parent();
+
+    // Remove All Existing Colouring
+    start.removeClass("yellow orange pink lighten-5");
+    end.removeClass("yellow orange pink lighten-5");
+    breaks.removeClass("yellow orange pink lighten-5");
+
+    // Check All Fields Have Been Completed
+    if (start.find("input").val() && end.find("input").val() && breaks.find("input").val()) {
+        // Convert Values to Timestamps
+        var open = new Date(1970, 0, 1, new Date(week.week[day].openCustomers).getUTCHours(), new Date(week.week[day].openCustomers).getUTCMinutes()).getTime(),
+            closed = new Date(1970, 0, 1, new Date(week.week[day].closedCustomers).getUTCHours(), new Date(week.week[day].closedCustomers).getUTCMinutes()).getTime(),
+            s = new Date(1970, 0, 1, start.find("input").val().split(":")[0], start.find("input").val().split(":")[1]).getTime(),
+            e = new Date(1970, 0, 1, end.find("input").val().split(":")[0], end.find("input").val().split(":")[1]).getTime();
+
+        // Check if Shift is a Night Shift
+        if (s > e) {
+            e += 86400000;
+        }
+        // Determine Shift Type
+        if (s <= open && !breaks.hasClass("green") && day != "sun") {
+            // Colour Cells Yellow for Staff Member for Day
+            start.addClass("yellow lighten-5");
+            end.addClass("yellow lighten-5");
+            breaks.addClass("yellow lighten-5");
+        }
+        else if (e >= closed && !breaks.hasClass("green") && day != "sun") {
+            // Colour Cells Pink for Staff Member for Day
+            start.addClass("pink lighten-5");
+            end.addClass("pink lighten-5");
+            breaks.addClass("pink lighten-5");
+        }
+        else if (!breaks.hasClass("green")) {
+            // Colour Cells Orange for Staff Member for Day
+            start.addClass("orange lighten-5");
+            end.addClass("orange lighten-5");
+            breaks.addClass("orange lighten-5");
+        }
+    }
 });
 
 // Handle Change Week Button

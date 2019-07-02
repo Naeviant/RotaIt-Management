@@ -66,7 +66,7 @@ app.use(session({
 }));
 
 // Gonfigure Database
-app.use(mongodb("mongodb://localhost/rotait"));
+app.use(mongodb("mongodb://localhost/" + config.app.db));
 
 // App Local Variables
 app.locals = {
@@ -239,13 +239,14 @@ app.get("/partial/rota_manage/", function(req, res) {
                                 return;
                             } 
                             // Check if Week is Published
-                            if (week && week.published === true) {
+                            if (week && week.published.indexOf(req.session.team) > -1) {
                                 // Prepare Array of Users
                                 var users = [];
                                 // Get Week's Shift Data from Database
                                 req.db.collection("shifts").find({
                                     weekNumber: req.query.week,
-                                    year: req.query.year
+                                    year: req.query.year,
+                                    team: req.session.team
                                 }, function(err, resp) {
                                     // Handle Database Connection Failures
                                     if (err) {
@@ -262,6 +263,7 @@ app.get("/partial/rota_manage/", function(req, res) {
                                             end = new Date(1547942400000 + (parseInt(req.query.week * 604800000) + (6 * 86400000))).getTime() + ((parseInt(req.query.year) - 2019) * 31536000000);
                                         // Get Week's Event Data from Database
                                         req.db.collection("events").find({
+                                            team: req.session.team,
                                             $or: [
                                                 { $and: [
                                                         {
@@ -393,7 +395,7 @@ app.get("/partial/rota_manage/", function(req, res) {
                                         week = {
                                             weekNumber: req.query.week,
                                             year: req.query.year,
-                                            published: false,
+                                            published: [],
                                             sun: {
                                                 closed: false,
                                                 bankHoliday: false,
@@ -772,7 +774,8 @@ app.get("/rota/", function(req, res) {
                     // Get Shift Data from Database
                     req.db.collection("shifts").find({
                         weekNumber: req.query.week,
-                        year: req.query.year
+                        year: req.query.year,
+                        team: req.session.team
                     }, function(err, shifts) {
                         // Handle Database Connection Failures
                         if (err) {
@@ -972,7 +975,8 @@ app.get("/rota/export/", function(req, res) {
                             resp.toArray().then(function(weeks) {
                                 // Get Shift Data from Database
                                 req.db.collection("shifts").find({
-                                    $or: query
+                                    $or: query,
+                                    team: req.session.team
                                 }, function(err, resp) {
                                     // Handle Database Connection Failures
                                     if (err) {
@@ -1354,7 +1358,7 @@ app.get("/rota/export/", function(req, res) {
                                                         row++;
                                                     }
                                                     // Add Thick Border to Bottom of Week
-                                                    spreadsheet.cell(row, 1, row, 16).style({ border: { top: { style: "thick" } } });
+                                                    spreadsheet.cell(row - 1, 1, row - 1, 16).style({ border: { bottom: { style: "thick" } } });
                                                     i++;
                                                     // Proceed to Next Year if No More Weeks
                                                     if (i > 52) {
@@ -1798,7 +1802,7 @@ app.post("/rota/verify/", function(req, res) {
                                                     errors.critical.push("Illegal shift assigned to " + team[index].firstName + " " + team[index].lastName +  " on " + date + ".");
                                                 }
                                                 // Check Availability Matrix has been Followed for User
-                                                if ((s.getUTCDay() > 0 && s.getUTCHours() < 12 && team[index].availability[days[s.getUTCDay()]].morning === false) || (s.getUTCDay() === 0 && s.getUTCHours() < 13 && team[index].availability.sun.morning === false) || (s.getUTCDay() > 0 && s.getUTCHours() < 17 && s.getUTCHours() > 11 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() > 0 && e.getUTCHours() < 17 && e.getUTCHours() > 12 && e.getUTCMinutes() > 0 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() === 0 && e.getUTCHours() > 12 && team[index].availability.sun.afternoon === false) || (s.getUTCDay() > 0 && s.getUTCDay() < 6 && e.getUTCHours() > 16 && e.getUTCMinutes() > 0 && team[index].availability[days[s.getUTCDay()]].evening === false) || (s.getUTCDay() === 6 && e.getUTCHours() > 15 && team[index].availability[days[s.getUTCDay()]].evening === false)) {
+                                                if ((s.getUTCDay() > 0 && s.getUTCHours() < 12 && team[index].availability[days[s.getUTCDay()]].morning === false) || (s.getUTCDay() === 0 && s.getUTCHours() < 13 && team[index].availability.sun.morning === false) || (s.getUTCDay() > 0 && s.getUTCDay() < 6 && s.getUTCHours() < 17 && s.getUTCHours() > 11 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() === 6 && s.getUTCHours() < 16 && s.getUTCHours() > 11 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() > 0 && e.getUTCHours() < 17 && e.getUTCHours() > 12 && e.getUTCMinutes() > 0 && team[index].availability[days[s.getUTCDay()]].afternoon === false) || (s.getUTCDay() === 0 && e.getUTCHours() > 12 && team[index].availability.sun.afternoon === false) || (s.getUTCDay() > 0 && s.getUTCDay() < 6 && e.getUTCHours() > 16 && e.getUTCMinutes() > 0 && team[index].availability[days[s.getUTCDay()]].evening === false) || (s.getUTCDay() === 6 && e.getUTCHours() > 15 && team[index].availability[days[s.getUTCDay()]].evening === false)) {
                                                     errors.warning.push("Availability matrix ignored for " + team[index].firstName + " " + team[index].lastName +  " on " + date + ".");
                                                 }
                                                 // Check if Day is Bank Holiday
@@ -2047,6 +2051,7 @@ app.post("/rota/save/", function(req, res) {
                             shift.provisional = (shift.provisional == "true");
                             shift.weekNumber = parseInt(req.body.weekNumber);
                             shift.year = parseInt(req.body.year);
+                            shift.team = req.session.team;
                             // Check Request Parameters are Valid
                             if (isNaN(shift.start) || isNaN(shift.end) || isNaN(shift.breaks)) {
                                 // Send Error
@@ -2061,7 +2066,8 @@ app.post("/rota/save/", function(req, res) {
                         // Delete All Existing Shift Data from Database
                         req.db.collection("shifts").deleteMany({
                             weekNumber: req.body.weekNumber,
-                            year: req.body.year
+                            year: req.body.year,
+                            team: req.session.team
                         }, function(err, done) {
                             // Add New Shift Data to Database
                             req.db.collection("shifts").insertMany(req.body.shifts, function(err, done) {
@@ -2254,8 +2260,8 @@ app.post("/rota/save/", function(req, res) {
                                         weekNumber: req.body.weekNumber,
                                         year: req.body.year
                                     }, {
-                                        $set: {
-                                            published: true
+                                        $addToSet: {
+                                            published: req.session.team
                                         }
                                     });
                                 }

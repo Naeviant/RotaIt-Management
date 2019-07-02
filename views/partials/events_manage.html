@@ -34,11 +34,11 @@
                                         <label>Type</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="from" type="date" value="{{ event.from_html }}" data-initial="{{ event.from }}">
+                                        <input id="from" type="date" value="{{ event.from_html }}" data-initial="{{ event.from }}" min="2019-01-01">
                                         <label for="from">From Date</label>
                                     </div>
                                     <div class="input-field col s12 m6 l3">
-                                        <input id="to" type="date" value="{{ event.to_html }}" data-initial="{{ event.to }}">
+                                        <input id="to" type="date" value="{{ event.to_html }}" data-initial="{{ event.to }}" min="2019-01-01">
                                         <label for="to">To Date</label>
                                     </div>
                                 </div>

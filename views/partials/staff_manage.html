@@ -80,13 +80,13 @@
                                                     <td class="hide-on-med-and-up">Su</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="sunday-mornings" {% if user.availability.sun.morning %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="sunday-mornings" {% if user.availability.sun.morning or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="sunday-afternoons" {% if user.availability.sun.afternoon %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="sunday-afternoons" {% if user.availability.sun.afternoon or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -97,19 +97,19 @@
                                                     <td class="hide-on-med-and-up">M</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="monday-mornings" {% if user.availability.mon.morning %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="monday-mornings" {% if user.availability.mon.morning or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="monday-afternoons" {% if user.availability.mon.afternoon %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="monday-afternoons" {% if user.availability.mon.afternoon or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="monday-evenings" {% if user.availability.mon.evening %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="monday-evenings" {% if user.availability.mon.evening or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -119,19 +119,19 @@
                                                     <td class="hide-on-med-and-up">Tu</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="tuesday-mornings" {% if user.availability.tue.morning %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="tuesday-mornings" {% if user.availability.tue.morning or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="tuesday-afternoons" {% if user.availability.tue.afternoon %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="tuesday-afternoons" {% if user.availability.tue.afternoon or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="tuesday-evenings" {% if user.availability.tue.evening %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="tuesday-evenings" {% if user.availability.tue.evening or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -141,19 +141,19 @@
                                                     <td class="hide-on-med-and-up">W</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="wednesday-mornings" {% if user.availability.wed.morning %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="wednesday-mornings" {% if user.availability.wed.morning or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="wednesday-afternoons" {% if user.availability.wed.afternoon %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="wednesday-afternoons" {% if user.availability.wed.afternoon or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="wednesday-evenings" {% if user.availability.wed.evening %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="wednesday-evenings" {% if user.availability.wed.evening or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -163,19 +163,19 @@
                                                     <td class="hide-on-med-and-up">Th</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="thursday-mornings" {% if user.availability.thu.morning %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="thursday-mornings" {% if user.availability.thu.morning or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="thursday-afternoons" {% if user.availability.thu.afternoon %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="thursday-afternoons" {% if user.availability.thu.afternoon or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="thursday-evenings" {% if user.availability.thu.evening %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="thursday-evenings" {% if user.availability.thu.evening or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -185,19 +185,19 @@
                                                     <td class="hide-on-med-and-up">F</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="friday-mornings" {% if user.availability.fri.morning %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="friday-mornings" {% if user.availability.fri.morning or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="friday-afternoons" {% if user.availability.fri.afternoon %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="friday-afternoons" {% if user.availability.fri.afternoon or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="friday-evenings" {% if user.availability.fri.evening %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="friday-evenings" {% if user.availability.fri.evening or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
@@ -207,19 +207,19 @@
                                                     <td class="hide-on-med-and-up">Sa</td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="saturday-mornings" {% if user.availability.sat.morning %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="saturday-mornings" {% if user.availability.sat.morning or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="saturday-afternoons" {% if user.availability.sat.afternoon %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="saturday-afternoons" {% if user.availability.sat.afternoon or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>
                                                     <td>
                                                         <label>
-                                                            <input type="checkbox" class="filled-in" id="saturday-evenings" {% if user.availability.sat.evening %} checked {% endif %} />
+                                                            <input type="checkbox" class="filled-in" id="saturday-evenings" {% if user.availability.sat.evening or not user %} checked {% endif %} />
                                                             <span></span>
                                                         </label>
                                                     </td>

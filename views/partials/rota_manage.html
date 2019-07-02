@@ -30,7 +30,7 @@
                             <a href="#modal-export" class="btn-floating light-blue waves-effect waves-light right tooltipped modal-trigger hide-on-small-only" data-position="bottom" data-tooltip="Export Rotas" style="margin-left: 3px;"><i class="material-icons">forward</i></a>
                             {% if not past %}
                                 <a href="#!" id="publish" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Publish" style="margin-left: 3px;"><i class="material-icons">publish</i></a>
-                                {% if week.published === false %}
+                                {% if week.published.indexOf(team[0].team) === -1 %}
                                     <a href="#!" id="save" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Save" style="margin-left: 3px;"><i class="material-icons">save</i></a>
                                 {% endif %}
                                 <a href="#!" id="verify" class="btn-floating light-blue waves-effect waves-light right tooltipped" data-position="bottom" data-tooltip="Verify" style="margin-left: 3px;"><i class="material-icons">done</i></a>
@@ -92,27 +92,27 @@
                                 {% for staff in team %}
                                     <tr>
                                         <td style="border-left: 1px solid rgba(0,0,0,0.12);">{{ staff.firstName }} {{ staff.lastName }} <br> {{ staff.staffNumber }}</td>
-                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
-                                        <td><input type="time"></td>
-                                        <td><input type="number"></td>
-                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
-                                        <td><input type="time"></td>
-                                        <td><input type="number"></td>
-                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
-                                        <td><input type="time"></td>
-                                        <td><input type="number"></td>
-                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
-                                        <td><input type="time"></td>
-                                        <td><input type="number"></td>
-                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
-                                        <td><input type="time"></td>
-                                        <td><input type="number"></td>
-                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
-                                        <td><input type="time"></td>
-                                        <td><input type="number"></td>
-                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time"></td>
-                                        <td><input type="time"></td>
-                                        <td style="border-right: 1px solid rgba(0,0,0,0.12);"><input type="number"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time" data-user="{{ staff.staffNumber }}" data-day="sun" data-type="start"></td>
+                                        <td><input type="time" data-user="{{ staff.staffNumber }}" data-day="sun" data-type="end"></td>
+                                        <td><input type="number" data-user="{{ staff.staffNumber }}" data-day="sun" data-type="breaks"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time" data-user="{{ staff.staffNumber }}" data-day="mon" data-type="start"></td>
+                                        <td><input type="time" data-user="{{ staff.staffNumber }}" data-day="mon" data-type="end"></td>
+                                        <td><input type="number" data-user="{{ staff.staffNumber }}" data-day="mon" data-type="breaks"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time" data-user="{{ staff.staffNumber }}" data-day="tue" data-type="start"></td>
+                                        <td><input type="time" data-user="{{ staff.staffNumber }}" data-day="tue" data-type="end"></td>
+                                        <td><input type="number" data-user="{{ staff.staffNumber }}" data-day="tue" data-type="breaks"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time" data-user="{{ staff.staffNumber }}" data-day="wed" data-type="start"></td>
+                                        <td><input type="time" data-user="{{ staff.staffNumber }}" data-day="wed" data-type="end"></td>
+                                        <td><input type="number" data-user="{{ staff.staffNumber }}" data-day="wed" data-type="breaks"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time" data-user="{{ staff.staffNumber }}" data-day="thu" data-type="start"></td>
+                                        <td><input type="time" data-user="{{ staff.staffNumber }}" data-day="thu" data-type="end"></td>
+                                        <td><input type="number" data-user="{{ staff.staffNumber }}" data-day="thu" data-type="breaks"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time" data-user="{{ staff.staffNumber }}" data-day="fri" data-type="start"></td>
+                                        <td><input type="time" data-user="{{ staff.staffNumber }}" data-day="fri" data-type="end"></td>
+                                        <td><input type="number" data-user="{{ staff.staffNumber }}" data-day="fri" data-type="breaks"></td>
+                                        <td style="border-left: 1px solid rgba(0,0,0,0.12);"><input type="time" data-user="{{ staff.staffNumber }}" data-day="sat" data-type="start"></td>
+                                        <td><input type="time" data-user="{{ staff.staffNumber }}" data-day="sat" data-type="end"></td>
+                                        <td style="border-right: 1px solid rgba(0,0,0,0.12);"><input type="number" data-user="{{ staff.staffNumber }}" data-day="sat" data-type="breaks"></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
